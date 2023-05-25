@@ -15,7 +15,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 set(PROJECT_SOURCES
         src/main.cpp
         src/plotwidget.cpp
-        src/real_parser.cpp
         src/function_list_model.cpp
         src/function_entry_delegate.cpp
         src/function_list_view.cpp
@@ -23,18 +22,23 @@ set(PROJECT_SOURCES
         src/function_table.cpp
         src/plot_scene.cpp
         src/line_editor.cpp
-        src/parse_worker.cpp
+        src/plot_view.cpp
 
-        include/line_editor.h
-        include/plot_scene.h
-        include/function_table.h
-        include/function_list_view.h
-        include/function_entry_delegate.h
-        include/function_list_model.h
-        include/plotwidget.h
-        include/real_parser.h
-        include/function_entry.h
-        include/parse_worker.h
+        src/plot_view.h
+        src/line_editor.h
+        src/plot_scene.h
+        src/function_table.h
+        src/function_list_view.h
+        src/function_entry_delegate.h
+        src/function_list_model.h
+        src/plotwidget.h
+        src/function_entry.h
+
+        src/Parser/real_parser.h
+        src/Parser/real_parser.cpp
+
+        src/Parser/parse_worker.h
+        src/Parser/parse_worker.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -62,7 +66,8 @@ add_executable(RealPlotter
     endif()
 endif()
 
-target_include_directories(RealPlotter PRIVATE include)
+target_include_directories(RealPlotter PRIVATE src)
+
 target_link_libraries(RealPlotter PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
                                     PRIVATE RealFunctionLib)
 
@@ -83,6 +88,7 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/RealFunctionLib)
+
 #add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 
 

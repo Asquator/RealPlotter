@@ -10,7 +10,7 @@ PlotWidget::PlotWidget(QWidget *parent)
     delegate(new FunctionEntryDelegate(this)),
     funcListView(new FunctionListView(this)),
     canvasScene(new PlotScene(this)),
-    canvasView(new QGraphicsView(this))
+    canvasView(new PlotView(this))
 {
     setMinimumSize(700,400);
 
@@ -28,7 +28,6 @@ PlotWidget::PlotWidget(QWidget *parent)
     delegate->setEditorType(FunctionEntryDelegate::EditorType::Entry);
 
     canvasView->setScene(canvasScene);
-
 
 	//layout management
     QHBoxLayout *layout = new QHBoxLayout;

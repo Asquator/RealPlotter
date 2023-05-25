@@ -1,5 +1,5 @@
 #include "function_list_model.h"
-#include "parse_worker.h"
+#include "Parser/parse_worker.h"
 #include "iostream"
 
 using namespace RealFunctionLib;

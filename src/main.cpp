@@ -1,5 +1,5 @@
 #include "plotwidget.h"
-#include "real_parser.h"
+#include "Parser/real_parser.h"
 
 #include <QApplication>
 #include <QString>
