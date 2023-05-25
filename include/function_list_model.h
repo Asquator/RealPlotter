@@ -27,6 +27,7 @@ signals:
 	void lastRemoved();
     void parsedFunction(QModelIndex);
 
+
 public slots:
 	void addEmptyLine();
     void removeLine(const QPersistentModelIndex &);
@@ -41,6 +42,8 @@ private:
 
 	bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
 	bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex());
+
+    void reparseAll();
 
 private slots:
     void handleParsed(const QModelIndex &index);
