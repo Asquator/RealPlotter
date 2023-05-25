@@ -4,13 +4,14 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QSplitter>
+#include <QGraphicsView>
 
 #include "function_list_view.h"
 #include "line_editor.h"
 #include "function_entry_delegate.h"
 #include "function_list_model.h"
 #include "function_table.h"
-#include "plot_canvas.h"
+#include "plot_scene.h"
 
 
 class PlotWidget : public QWidget
@@ -25,7 +26,9 @@ private:
     FunctionListView *funcListView;
     FunctionListModel *model;
     FunctionEntryDelegate *delegate;
-    PlotCanvas *canvas;
+
+    PlotScene *canvasScene;
+    QGraphicsView *canvasView;
 
     FunctionTable namedFunctions;
 };

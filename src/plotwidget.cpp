@@ -1,5 +1,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGraphicsView>
 
 #include "plotwidget.h"
 
@@ -8,8 +9,10 @@ PlotWidget::PlotWidget(QWidget *parent)
     model(new FunctionListModel(this)),
     delegate(new FunctionEntryDelegate(this)),
     funcListView(new FunctionListView(this)),
-    canvas(new PlotCanvas(this))
+    canvasScene(new PlotScene(this)),
+    canvasView(new QGraphicsView(this))
 {
+    setMinimumSize(700,400);
 
     funcListView->setModel(model);
 
@@ -24,16 +27,20 @@ PlotWidget::PlotWidget(QWidget *parent)
 
     delegate->setEditorType(FunctionEntryDelegate::EditorType::Entry);
 
+    canvasView->setScene(canvasScene);
+
+
 	//layout management
     QHBoxLayout *layout = new QHBoxLayout;
 	QSplitter *splitter = new QSplitter;
 
     splitter->addWidget(funcListView);
-	splitter->addWidget(canvas);
+    splitter->addWidget(canvasView);
+    splitter->setSizes(QList<int>{200,600});
 
 	layout->addWidget(splitter);
 
-	canvas->setContentsMargins(0,0,0,0);
+    canvasView->setContentsMargins(0,0,0,0);
     funcListView->setContentsMargins(0,0,0,0);
 	splitter->setContentsMargins(0,0,0,0);
 	layout->setContentsMargins(0,0,0,0);

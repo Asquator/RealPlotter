@@ -21,12 +21,12 @@ set(PROJECT_SOURCES
         src/function_list_view.cpp
         src/function_entry.cpp
         src/function_table.cpp
-        src/plot_canvas.cpp
+        src/plot_scene.cpp
         src/line_editor.cpp
         src/parse_worker.cpp
 
         include/line_editor.h
-        include/plot_canvas.h
+        include/plot_scene.h
         include/function_table.h
         include/function_list_view.h
         include/function_entry_delegate.h

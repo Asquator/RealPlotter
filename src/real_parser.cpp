@@ -524,6 +524,7 @@ void RealParser::PostfixEvaluator::treatPreserved(const RealToken &token){
 
     case Preserved::pi:
         operands.push(createConstant(Real_Math::PI));
+        break;
 
     default:
         throw bad_parse_exception("invalid preserved token in expression");

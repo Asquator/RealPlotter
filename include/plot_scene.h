@@ -4,16 +4,16 @@
 #include <QWidget>
 #include <QPaintEvent>
 #include <QRect>
+#include <QGraphicsScene>
 
-class PlotCanvas : public QWidget
+
+class PlotScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    explicit PlotCanvas(QWidget *parent = nullptr);
+    explicit PlotScene(QWidget *parent = nullptr);
 
 
-protected:
-    void paintEvent(QPaintEvent *);
 
 private:
     QRect region;
