@@ -150,7 +150,16 @@ bool FunctionListModel::removeRows(int position, int rows, const QModelIndex &pa
     }
 
     endRemoveRows();
+
+    if(reparse)
+        reparseAll();
+
     return true;
+}
+
+void FunctionListModel::reparseAll(){
+    for(int i = 0; i < funcList.size(); ++i)
+        tryParse(index(i));
 }
 
 /**
