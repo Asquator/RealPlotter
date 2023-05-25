@@ -136,7 +136,16 @@ bool FunctionListModel::removeRows(int position, int rows, const QModelIndex &pa
 {
     beginRemoveRows(QModelIndex(), position, position+rows-1);
 
+    bool reparse = false;
+
     for (int row = 0; row < rows; ++row) {
+        //if removing a named function, remove it also from the reference table and set reparse flag to true
+
+        if(funcList.at(position)->isNamed()){
+            reparse = true;
+            namedFunctions.remove(funcList.at(position)->getName());
+        }
+
         funcList.removeAt(position);
     }
 
