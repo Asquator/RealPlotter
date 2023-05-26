@@ -14,15 +14,11 @@ class PlotScene : public QGraphicsScene
 public:
     explicit PlotScene(QWidget *parent = nullptr);
 
-    Q_PROPERTY(double plotScale MEMBER m_plotScale NOTIFY plotScaleChanged)
-
     void drawAxes();
 
 public slots:
     void zoomed(double newScale);
 
-signals:
-    void plotScaleChanged(double);
 
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect);

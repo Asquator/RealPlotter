@@ -20,13 +20,9 @@ set(PROJECT_SOURCES
         src/function_list_view.cpp
         src/function_entry.cpp
         src/function_table.cpp
-        src/plot_scene.cpp
         src/line_editor.cpp
-        src/plot_view.cpp
 
-        src/plot_view.h
         src/line_editor.h
-        src/plot_scene.h
         src/function_table.h
         src/function_list_view.h
         src/function_entry_delegate.h
@@ -34,10 +30,16 @@ set(PROJECT_SOURCES
         src/plotwidget.h
         src/function_entry.h
 
-        src/Parser/real_parser.h
-        src/Parser/real_parser.cpp
+        src/Graphics/plot_scene.cpp
+        src/Graphics/plot_view.cpp
 
+        src/Graphics/plot_view.h
+        src/Graphics/plot_scene.h
+
+        src/Parser/real_parser.h
         src/Parser/parse_worker.h
+
+        src/Parser/real_parser.cpp
         src/Parser/parse_worker.cpp
 )
 
@@ -67,7 +69,8 @@ add_executable(RealPlotter
 endif()
 
 target_include_directories(RealPlotter PRIVATE ${CMAKE_SOURCE_DIR}/src
-					PRIVATE ${CMAKE_SOURCE_DIR}/src/Parser)
+                                        PRIVATE ${CMAKE_SOURCE_DIR}/src/Parser
+                                        PRIVATE ${CMAKE_SOURCE_DIR}/src/Graphics)
 
 target_link_libraries(RealPlotter PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
                                     PRIVATE RealFunctionLib)
