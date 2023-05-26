@@ -66,7 +66,8 @@ add_executable(RealPlotter
     endif()
 endif()
 
-target_include_directories(RealPlotter PRIVATE src)
+target_include_directories(RealPlotter PRIVATE ${CMAKE_SOURCE_DIR}/src
+					PRIVATE ${CMAKE_SOURCE_DIR}/src/Parser)
 
 target_link_libraries(RealPlotter PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
                                     PRIVATE RealFunctionLib)
