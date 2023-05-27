@@ -8,13 +8,7 @@ FunctionEntryDelegate::FunctionEntryDelegate(QObject *parent):
     QStyledItemDelegate(parent){}
 
 
-/**
- * @brief FunctionEntryDelegate::createEditor creates the delegate editor for a row in the function list
- * @param parent parent QWidget
- * @param option style option
- * @param index index in the model
- * @return line editor
- */
+
 QWidget *FunctionEntryDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                                 const QModelIndex &index) const {
 	LineEditor *editor = new LineEditor(parent);
@@ -24,19 +18,28 @@ QWidget *FunctionEntryDelegate::createEditor(QWidget *parent, const QStyleOption
 		case EditorType::Entry:
 			editor->registerAsEntry();
 			editor->setModelIndex(index);
+
+            //focusing on new entries
 			editor->setFocus(Qt::OtherFocusReason);
 
 			connect(editor, SIGNAL(deleteClicked(QPersistentModelIndex)),
-					mdl, SLOT(removeLine(QPersistentModelIndex)));
+                    mdl, SLOT(removeRow(QPersistentModelIndex)));
 
+            //save cursor
             connect(editor, &LineEditor::textChanged, editor, &LineEditor::saveCursor);
+
+            //save to model when text changed
             connect(editor, &LineEditor::textChanged, this, &FunctionEntryDelegate::commitInput);
+
+            //restore cursor to the correct position
             connect(editor, &LineEditor::textChanged, editor, &LineEditor::restoreCursor);
 
 			break;
 
 		case EditorType::DummyLast:
 			editor->registerAsDummy();
+
+            //add empty line on click
 			connect(editor, SIGNAL(editorFocusIn()), mdl, SLOT(addEmptyLine()));
 
 			break;
@@ -74,7 +77,9 @@ void FunctionEntryDelegate::updateEditorGeometry(QWidget *editor, const QStyleOp
     editor->setGeometry(option.rect);
 }
 
-
+/*
+ * commits input to the model
+ */
 void FunctionEntryDelegate::commitInput(){
     emit commitData(qobject_cast<LineEditor *>(sender()));
 }

@@ -29,8 +29,17 @@ signals:
 
 
 public slots:
+
+    /**
+     * @brief addEmptyLine adds empty line at the end of the list
+     */
 	void addEmptyLine();
-    void removeLine(const QPersistentModelIndex &);
+
+    /**
+     * @brief removeRow removes line at the given index
+     * @param index index in the model
+     */
+    void removeRow(const QPersistentModelIndex &);
 
 private:
     QVector<QSharedPointer<FunctionEntry>> funcList;
@@ -46,6 +55,11 @@ private:
     void reparseAll();
 
 private slots:
+
+    /**
+     * @brief handleParsed processes the parsed function entry
+     * @param index index in the model
+     */
     void handleParsed(const QModelIndex &index);
 };
 

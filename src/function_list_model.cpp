@@ -13,7 +13,9 @@ int FunctionListModel::rowCount(const QModelIndex &parent) const {
     return funcList.count();
 }
 
-
+/*
+ * Retrieves and returns the shared pointer from the model at the given index
+ */
 QVariant FunctionListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= funcList.size())
@@ -35,7 +37,9 @@ QVariant FunctionListModel::headerData(int section, Qt::Orientation orientation,
     return QStringLiteral("Functions").arg(section);
 }
 
-
+/*
+ * inserts rows to the model at the given position
+ */
 bool FunctionListModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
     beginInsertRows(QModelIndex(), position, position+rows-1);
@@ -57,7 +61,9 @@ Qt::ItemFlags FunctionListModel::flags(const QModelIndex &index) const {
     return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 }
 
-
+/*
+ * receives a QVariant with a string, saves the data in the model and tries to parse the new entry
+ */
 bool FunctionListModel::setData(const QModelIndex &index,
                               const QVariant &value, int role)
 {
@@ -82,9 +88,8 @@ bool FunctionListModel::setData(const QModelIndex &index,
     return false;
 }
 
-/**
- * @brief FunctionListModel::tryParse tries to parse the newly inserted line in a separate thread
- * @param index index of the inserted line
+/*
+ * tries to parse the entry at the given index as a function, on success passes control to handleparsed
  */
 void FunctionListModel::tryParse(const QModelIndex &index){
     QPersistentModelIndex persIndex = index;
@@ -110,13 +115,13 @@ void FunctionListModel::tryParse(const QModelIndex &index){
     parseThreadPool.start(parseWorker);
 }
 
-/**
- * @brief FunctionListModel::handleParsed processes the parsed function entry
- * @param index index in the model
+/*
+ * processes the newly parsed entry at the given index:
  */
 void FunctionListModel::handleParsed(const QModelIndex &index){
     QSharedPointer<FunctionEntry> ptr = funcList[index.row()];
 
+    //if the function is named, then save it to the table of named functions
     std::cout << "checking named" << std::endl;
     if(ptr->isNamed()){
         std::cout << "named: " << ptr->getName() << std::endl;
@@ -125,13 +130,7 @@ void FunctionListModel::handleParsed(const QModelIndex &index){
     }
 }
 
-/**
- * @brief FunctionListModel::removeRows removes rows from the list model
- * @param position from
- * @param rows number of rows to remove
- * @param parent parent, not used in the sequential model
- * @return true if successfully removed
- */
+
 bool FunctionListModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
     beginRemoveRows(QModelIndex(), position, position+rows-1);
@@ -151,28 +150,31 @@ bool FunctionListModel::removeRows(int position, int rows, const QModelIndex &pa
 
     endRemoveRows();
 
+    //if a named function was removed from the model, reparse everything
     if(reparse)
         reparseAll();
 
     return true;
 }
 
+/*
+ * reparses all functions
+ */
 void FunctionListModel::reparseAll(){
     for(int i = 0; i < funcList.size(); ++i)
         tryParse(index(i));
 }
 
-/**
- * @brief FunctionListModel::addEmptyLine adds empty line at the end of the list
+/*
+ * adds empty line at the end of the list
  */
 void FunctionListModel::addEmptyLine(){
 	insertRow(rowCount() - 1);
 }
 
-/**
- * @brief FunctionListModel::removeLine removes line at the given index
- * @param index index in the model
+/*
+ * removes a line at the specified row from the odel
  */
-void FunctionListModel::removeLine(const QPersistentModelIndex &index){
-    removeRow(index.row());
+void FunctionListModel::removeRow(const QPersistentModelIndex &index){
+    QAbstractListModel::removeRow(index.row());
 }
