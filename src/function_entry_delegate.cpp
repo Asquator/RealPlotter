@@ -74,9 +74,11 @@ void FunctionEntryDelegate::updateEditorGeometry(QWidget *editor, const QStyleOp
     editor->setGeometry(option.rect);
 }
 
+
 void FunctionEntryDelegate::commitInput(){
     emit commitData(qobject_cast<LineEditor *>(sender()));
 }
+
 
 QSize FunctionEntryDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& ind) const {
 	return QSize(QStyledItemDelegate::sizeHint(opt, ind).width(), 50);

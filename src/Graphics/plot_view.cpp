@@ -9,9 +9,6 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
     //start centered on the origin
-
-    //centerOn(0, 0);
-
     setTransformationAnchor(ViewportAnchor::AnchorUnderMouse);
 
     //disable the scrollers
@@ -26,6 +23,8 @@ void PlotView::setScene(PlotScene *scene){
     connect(this, SIGNAL(zoomScaleChanged(double)), scene, SLOT(zoomed(double)));
 
     QRectF rect = scene->sceneRect();
+
+    fitInView(QRectF(QPointF(-10,-10), QPointF(10,10)));
     centerOn((rect.left() + rect.right()) / 2, (rect.bottom() + rect.top()) / 2);
 }
 
