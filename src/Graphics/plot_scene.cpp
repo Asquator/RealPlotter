@@ -18,7 +18,7 @@ PlotScene::PlotScene(QWidget *parent)
 
 void PlotScene::addAxes(){
     QPen axesPen(Qt::black);
-    axesPen.setWidth(2);
+    axesPen.setWidth(3);
 
     QGraphicsLineItem *x_axis = new QGraphicsLineItem(-width()/2, 0, width()/2, 0);
     QGraphicsLineItem *y_axis = new QGraphicsLineItem(0, height()/2, 0, -height()/2);
