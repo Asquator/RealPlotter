@@ -3,6 +3,8 @@
 
 #include <QGraphicsView>
 #include <QWheelEvent>
+#include <QRectF>
+
 #include "plot_scene.h"
 
 class PlotView : public QGraphicsView
@@ -13,12 +15,13 @@ public:
     PlotView(QWidget *parent);
     void setScene(PlotScene *scene);
 
+    QRectF visibleRect();
+
 signals:
     void zoomScaleChanged(double);
 
 private:
     double m_zoomScale = 1;
-
 
 protected:
     void wheelEvent(QWheelEvent *event);

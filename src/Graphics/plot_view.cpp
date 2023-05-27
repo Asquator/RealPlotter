@@ -1,8 +1,11 @@
-#include "plot_view.h"
 #include <float.h>
 #include <iostream>
 #include <QRectF>
 #include <QPolygonF>
+#include <algorithm>
+
+#include "plot_view.h"
+
 
 PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 {
@@ -20,12 +23,23 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
-    connect(this, SIGNAL(zoomScaleChanged(double)), scene, SLOT(zoomed(double)));
+    connect(this, SIGNAL(zoomScaleChanged(double)), scene, SLOT(updateScale(double)));
 
-    QRectF rect = scene->sceneRect();
+    auto anchorSaved = transformationAnchor();
+    setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
 
-    fitInView(QRectF(QPointF(-10,-10), QPointF(10,10)));
-    centerOn((rect.left() + rect.right()) / 2, (rect.bottom() + rect.top()) / 2);
+    centerOn(scene->sceneRect().center());
+    QRectF rect = visibleRect();
+
+    double factor = scene->getGridScale() * std::max(rect.width(), rect.height());
+    scale(factor, factor);
+
+    setTransformationAnchor(anchorSaved);
+}
+
+
+QRectF PlotView::visibleRect(){
+    return mapToScene(rect()).boundingRect();
 }
 
 void PlotView::wheelEvent(QWheelEvent *event){
@@ -40,6 +54,6 @@ void PlotView::wheelEvent(QWheelEvent *event){
     //std::cout << mapToScene(viewport()->geometry()).boundingRect().x() << " " <<
      //   mapToScene(viewport()->geometry()).boundingRect().y() << std::endl;
 
-    std::cout << mapToScene(rect()).boundingRect().x() <<" " << mapToScene(rect()).boundingRect().y() << std::endl;
+    std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << visibleRect().width() << " " << visibleRect().height() << std::endl;
 
 }
