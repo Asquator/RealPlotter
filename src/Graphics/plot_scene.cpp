@@ -69,9 +69,11 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     double gap = 1 / gridScale, level, extraRender;
     double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
 
-    //horizontal
     painter->setPen(pen);
-  //  painter->drawLine(-5,-5,5,5);
+
+    //horizontal
+
+    //addLine(-10,-0.999,10,0.999);
     extraRender = (right - left) * EXTRA_RENDER_FACTOR;
 
     //iterate from top to bottom and draw lines

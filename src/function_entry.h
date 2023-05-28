@@ -2,14 +2,18 @@
 #define FUNCTION_ENTRY_H
 
 #include <QString>
+#include <QMetaType>
 
 #include<RealFunctionLib/real_function.h>
 
+class FunctionEntry;
+
+Q_DECLARE_METATYPE(FunctionEntry)
 
 class FunctionEntry{
 
 public:
-    FunctionEntry(){}
+    FunctionEntry(){qRegisterMetaType<FunctionEntry>();}
     explicit FunctionEntry(const QString &, const RealFunctionLib::RealFunction &);
     explicit FunctionEntry(const QString &, const RealFunctionLib::RealFunction &, char name);
 
@@ -54,5 +58,7 @@ private:
     QString inputString;
     RealFunctionLib::RealFunction function;
 };
+
+
 
 #endif // FUNCTION_ENTRY_H

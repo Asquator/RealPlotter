@@ -5,9 +5,12 @@
 #include <QVector>
 #include <QSharedPointer>
 #include <QThreadPool>
+#include <QSharedPointer>
 
 #include "function_entry.h"
 #include "function_table.h"
+
+Q_DECLARE_METATYPE(QSharedPointer<FunctionEntry>)
 
 class FunctionListModel : public QAbstractListModel
 {

@@ -6,6 +6,7 @@
 
 #include<RealFunctionLib/real_function.h>
 #include "function_table.h"
+#include "function_entry.h"
 
 
 class ParseWorker : public QObject, public QRunnable{

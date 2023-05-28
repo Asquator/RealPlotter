@@ -54,6 +54,6 @@ void PlotView::wheelEvent(QWheelEvent *event){
     //std::cout << mapToScene(viewport()->geometry()).boundingRect().x() << " " <<
      //   mapToScene(viewport()->geometry()).boundingRect().y() << std::endl;
 
-    std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << visibleRect().width() << " " << visibleRect().height() << std::endl;
+    //std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << visibleRect().width() << " " << visibleRect().height() << std::endl;
 
 }

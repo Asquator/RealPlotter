@@ -1,6 +1,8 @@
+#include <QSharedPointer>
+
 #include "function_list_model.h"
-#include "Parser/parse_worker.h"
-#include "iostream"
+#include "parse_worker.h"
+#include <iostream>
 
 using namespace RealFunctionLib;
 
