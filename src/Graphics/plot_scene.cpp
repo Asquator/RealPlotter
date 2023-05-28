@@ -15,7 +15,7 @@ PlotScene::PlotScene(QWidget *parent)
     addAxes();
 }
 
-const double PlotScene::UNIT_SCALE_SIDE = log2(PlotScene::SCENE_SIDE);
+const double PlotScene::UNIT_SCALE_SIDE = sqrt(SCENE_SIDE);
 
 void PlotScene::addAxes(){
     QPen axesPen(Qt::black);
@@ -76,6 +76,7 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     //horizontal
 
     //iterate from top to bottom and draw lines
+    std::cout << PlotScene::UNIT_SCALE_SIDE;
     for (level = gap * round(top / gap) - gap; level < bottom + gap; level += gap) {
         painter->drawLine(left -  EXTRA_RENDER_OFFSET, level,
                         right +  EXTRA_RENDER_OFFSET, level);

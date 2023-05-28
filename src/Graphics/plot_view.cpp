@@ -3,6 +3,7 @@
 #include <QRectF>
 #include <QPolygonF>
 #include <algorithm>
+#include <cmath>
 
 #include "plot_view.h"
 
@@ -33,6 +34,7 @@ void PlotView::setScene(PlotScene *scene){
 
     double currentSide = std::max(rect.width(), rect.height());
     double desiredSide = PlotScene::UNIT_SCALE_SIDE;
+
     double factor = currentSide / desiredSide;
     scale(factor, factor);
 
