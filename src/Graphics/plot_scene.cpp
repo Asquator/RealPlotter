@@ -54,25 +54,6 @@ void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
     addItem(y_axis);
 }
 
-void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
-    //fill white background
-    setBackgroundBrush(Qt::white);
-    QGraphicsScene::drawBackground(painter, rect);
-
-  //  std::pair<double, double> penSizes = calcAxesWidth(rect);
-
-    /*
-    //draw axes
-    QPen pen = QPen(Qt::black);
-
-    pen.setWidth(penSizes.first);
-    painter->setPen(pen);
-    painter->drawLine(-width(), 0, width(), 0);
-
-    pen.setWidth(penSizes.second);
-    painter->setPen(pen);
-    painter->drawLine(0, height(), 0, -height());
-
 */
     drawGrid(painter, rect);
 }
@@ -83,14 +64,14 @@ using std::fabs; using std::fmod;
 void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
 
     QPen pen = QPen(Qt::black);
-    //pen.setStyle(Qt::DashDotLine);
+    pen.setCosmetic(true);
 
     double gap = 1 / gridScale, level, extraRender;
     double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
 
     //horizontal
-    pen.setWidth(rect.height() * LINES_WIDTH_TO_PLOT_SIZE);
     painter->setPen(pen);
+  //  painter->drawLine(-5,-5,5,5);
     extraRender = (right - left) * EXTRA_RENDER_FACTOR;
 
     //iterate from top to bottom and draw lines
@@ -100,7 +81,6 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     }
 
     //vertical
-    pen.setWidth(rect.width() * LINES_WIDTH_TO_PLOT_SIZE);
     painter->setPen(pen);
     extraRender = (bottom - top) * EXTRA_RENDER_FACTOR;
 

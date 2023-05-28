@@ -44,7 +44,7 @@ QRectF PlotView::visibleRect(){
 
 void PlotView::wheelEvent(QWheelEvent *event){
     int angle = event->angleDelta().y();
-    double scaleFactor = 1 + angle / 400.0;
+    double scaleFactor = 1 + angle * SCROLL_FACTOR;
     scale(scaleFactor, scaleFactor);
     m_zoomScale *= scaleFactor;
 
