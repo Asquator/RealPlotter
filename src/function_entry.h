@@ -6,10 +6,6 @@
 
 #include<RealFunctionLib/real_function.h>
 
-class FunctionEntry;
-
-Q_DECLARE_METATYPE(FunctionEntry)
-
 class FunctionEntry{
 
 public:
@@ -59,6 +55,8 @@ private:
     RealFunctionLib::RealFunction function;
 };
 
+
+Q_DECLARE_METATYPE(FunctionEntry)
 
 
 #endif // FUNCTION_ENTRY_H

@@ -10,11 +10,12 @@
 PlotScene::PlotScene(QWidget *parent)
     : QGraphicsScene{parent}{
 
-    setSceneRect(-INT_MAX/2, -INT_MAX/2, INT_MAX, INT_MAX);
+    setSceneRect(-SCENE_SIDE/2, -SCENE_SIDE/2, SCENE_SIDE, SCENE_SIDE);
 
     addAxes();
 }
 
+const double PlotScene::UNIT_SCALE_SIDE = log2(PlotScene::SCENE_SIDE);
 
 void PlotScene::addAxes(){
     QPen axesPen(Qt::black);
@@ -66,30 +67,27 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     QPen pen = QPen(Qt::black);
     pen.setCosmetic(true);
 
-    double gap = 1 / gridScale, level, extraRender;
+    double gap = UNIT_SCALE_SIDE / gridScale;
     double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
 
     painter->setPen(pen);
 
+    double level;
     //horizontal
-
-    //addLine(-10,-0.999,10,0.999);
-    extraRender = (right - left) * EXTRA_RENDER_FACTOR;
 
     //iterate from top to bottom and draw lines
     for (level = gap * round(top / gap) - gap; level < bottom + gap; level += gap) {
-        painter->drawLine(left - extraRender, level,
-                        right + extraRender, level);
+        painter->drawLine(left -  EXTRA_RENDER_OFFSET, level,
+                        right +  EXTRA_RENDER_OFFSET, level);
     }
 
     //vertical
     painter->setPen(pen);
-    extraRender = (bottom - top) * EXTRA_RENDER_FACTOR;
 
     //iterate from left to right and draw lines
     for (level = gap * round(left / gap) - gap; level <= right + gap; level += gap) {
-        painter->drawLine(level, top - extraRender,
-                        level, bottom + extraRender);
+        painter->drawLine(level, top - EXTRA_RENDER_OFFSET,
+                        level, bottom +  EXTRA_RENDER_OFFSET);
     }
 
 

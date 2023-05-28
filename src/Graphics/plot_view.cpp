@@ -31,7 +31,9 @@ void PlotView::setScene(PlotScene *scene){
     centerOn(scene->sceneRect().center());
     QRectF rect = visibleRect();
 
-    double factor = scene->getGridScale() * std::max(rect.width(), rect.height());
+    double currentSide = std::max(rect.width(), rect.height());
+    double desiredSide = PlotScene::UNIT_SCALE_SIDE;
+    double factor = currentSide / desiredSide;
     scale(factor, factor);
 
     setTransformationAnchor(anchorSaved);
@@ -54,6 +56,6 @@ void PlotView::wheelEvent(QWheelEvent *event){
     //std::cout << mapToScene(viewport()->geometry()).boundingRect().x() << " " <<
      //   mapToScene(viewport()->geometry()).boundingRect().y() << std::endl;
 
-    //std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << visibleRect().width() << " " << visibleRect().height() << std::endl;
+    std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << visibleRect().width() << " " << visibleRect().height() << std::endl;
 
 }
