@@ -76,7 +76,6 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     //horizontal
 
     //iterate from top to bottom and draw lines
-    std::cout << PlotScene::UNIT_SCALE_SIDE;
     for (level = gap * round(top / gap) - gap; level < bottom + gap; level += gap) {
         painter->drawLine(left -  EXTRA_RENDER_OFFSET, level,
                         right +  EXTRA_RENDER_OFFSET, level);
@@ -98,6 +97,14 @@ template <int N> class CircularScaler{
 public:
     CircularScaler(std::array<double, N> arr, int startUpscalePos):
         factors(arr), pos{startUpscalePos} {}
+
+    double nextUp(){
+        return pos == factors.size() - 1 ? factors[0] : factors[pos];
+    }
+
+    double nextDown(){
+        return pos == 0 ? factors[factors.size() - 1] : factors[pos];
+    }
 
     double scaleUp(){
         //take this element as a scale factor
@@ -127,10 +134,10 @@ void PlotScene::updateScale(double newViewScale){
 
     double zoomRatio = newViewScale / gridScale;
 
-    if(zoomRatio >= 2) //zoomed in
+    if(zoomRatio >= scaler.nextUp()) //zoomed in
         gridScale *= scaler.scaleUp();
 
-    else if(zoomRatio <= 0.5) //zoomed out
+    else if(zoomRatio <= 1 / scaler.nextDown()) //zoomed out
         gridScale /= scaler.scaleDown();
 
 }

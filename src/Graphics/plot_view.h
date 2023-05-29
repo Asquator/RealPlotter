@@ -23,7 +23,7 @@ signals:
 private:
     double m_zoomScale = 1;
 
-    const double SCROLL_FACTOR = 0.001;
+    const double SCROLL_FACTOR = 0.0005;
 
 protected:
     void wheelEvent(QWheelEvent *event);
