@@ -16,14 +16,24 @@ public:
     explicit PlotScene(QWidget *parent = nullptr);
 
     void addAxes();
-    double getGridScale(){return gridScale;}
+    double getGridScale(){return relativeGridScale;}
 
     static constexpr double SCENE_SIDE = INT_MAX;
+    static constexpr int N_DEFAULT_GRID_LINES = 5;
+
     static const double UNIT_SCALE_SIDE;
 
-public slots:
-    void updateScale(double newScale);
+    double getUnitScale() const;
 
+public slots:
+    void updateGridUnits(double newViewScale);
+/*
+    void exceededZoomIn();
+    void exceededZoomOut();
+*/
+
+signals:
+    void basicUnitUpdated();
 
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
@@ -31,10 +41,14 @@ protected:
 private:
     //number of frames to render at each side (invisible at the time of rendering)
     static constexpr int EXTRA_RENDER_OFFSET = 100;
+    static const double MAX_RECOMMENDED_ZOOM;
 
     const double LINES_WIDTH_TO_PLOT_SIZE = 0.0015;
 
-    double gridScale = 1;
+    double absoluteZoomScale = 1;
+    double relativeGridScale = 1;
+    double unitScale = 1;
+
     void drawGrid(QPainter *painter, const QRectF &rect);
 
 };

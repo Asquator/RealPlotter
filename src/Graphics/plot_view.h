@@ -21,9 +21,11 @@ signals:
     void zoomScaleChanged(double);
 
 private:
-    double m_zoomScale = 1;
+    double zoomScale = 1;
 
-    const double SCROLL_FACTOR = 0.0005;
+    const double SCROLL_FACTOR = 0.0005; //0.0005;
+
+    void unitRescale();
 
 protected:
     void wheelEvent(QWheelEvent *event);

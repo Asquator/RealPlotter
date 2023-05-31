@@ -16,6 +16,7 @@ PlotScene::PlotScene(QWidget *parent)
 }
 
 const double PlotScene::UNIT_SCALE_SIDE = sqrt(SCENE_SIDE);
+const double PlotScene::MAX_RECOMMENDED_ZOOM = 0.01 * UNIT_SCALE_SIDE;
 
 void PlotScene::addAxes(){
     QPen axesPen(Qt::black);
@@ -59,6 +60,11 @@ void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
     drawGrid(painter, rect);
 }
 
+double PlotScene::getUnitScale() const
+{
+    return unitScale;
+}
+
 
 using std::fabs; using std::fmod;
 
@@ -67,7 +73,7 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     QPen pen = QPen(Qt::black);
     pen.setCosmetic(true);
 
-    double gap = UNIT_SCALE_SIDE / gridScale;
+    double gap = UNIT_SCALE_SIDE / relativeGridScale;
     double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
 
     painter->setPen(pen);
@@ -77,8 +83,8 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
 
     //iterate from top to bottom and draw lines
     for (level = gap * round(top / gap) - gap; level < bottom + gap; level += gap) {
-        painter->drawLine(left -  EXTRA_RENDER_OFFSET, level,
-                        right +  EXTRA_RENDER_OFFSET, level);
+        painter->drawLine(left - EXTRA_RENDER_OFFSET, level,
+                        right + EXTRA_RENDER_OFFSET, level);
     }
 
     //vertical
@@ -87,7 +93,7 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     //iterate from left to right and draw lines
     for (level = gap * round(left / gap) - gap; level <= right + gap; level += gap) {
         painter->drawLine(level, top - EXTRA_RENDER_OFFSET,
-                        level, bottom +  EXTRA_RENDER_OFFSET);
+                        level, bottom + EXTRA_RENDER_OFFSET);
     }
 
 
@@ -99,7 +105,7 @@ public:
         factors(arr), pos{startUpscalePos} {}
 
     double nextUp(){
-        return pos == factors.size() - 1 ? factors[0] : factors[pos];
+        return factors[pos];
     }
 
     double nextDown(){
@@ -128,16 +134,44 @@ private:
     std::array<double, N> factors;
 };
 
+/*
+void PlotScene::exceededZoomIn(){
+    relativeZoomScale = 1;
+}
 
-void PlotScene::updateScale(double newViewScale){
+void PlotScene::exceededZoomOut(){
+    relativeZoomScale = 1;
+}
+*/
+
+void PlotScene::updateGridUnits(double newViewScale){
     static CircularScaler<3> scaler({2,2.5,2}, 0);
+    bool updated = false;
+    double nextScale;
 
-    double zoomRatio = newViewScale / gridScale;
+    //unitScale *= newViewScale;
 
-    if(zoomRatio >= scaler.nextUp()) //zoomed in
-        gridScale *= scaler.scaleUp();
+    std::cout << "SCALE: " << relativeGridScale;
+    double zoomRatio = newViewScale / relativeGridScale;
 
-    else if(zoomRatio <= 1 / scaler.nextDown()) //zoomed out
-        gridScale /= scaler.scaleDown();
+    if(zoomRatio >= scaler.nextUp()){ //zoomed in
+        relativeGridScale *= scaler.scaleUp();
+        unitScale = 1;
+    }
+
+    else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
+        relativeGridScale /= scaler.scaleDown();
+        unitScale = 1;
+    }
+
+    if(relativeGridScale >= MAX_RECOMMENDED_ZOOM){
+        relativeGridScale = 1;
+        emit basicUnitUpdated();
+    }
+
+    else if(relativeGridScale <= 1 / MAX_RECOMMENDED_ZOOM){
+        relativeGridScale = 1;
+        emit basicUnitUpdated();
+    }
 
 }

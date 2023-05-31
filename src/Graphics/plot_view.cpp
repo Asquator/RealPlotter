@@ -17,28 +17,21 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 
     //disable the scrollers
     setDragMode(QGraphicsView::ScrollHandDrag);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+   // setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 }
 
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
-    connect(this, SIGNAL(zoomScaleChanged(double)), scene, SLOT(updateScale(double)));
-
-    auto anchorSaved = transformationAnchor();
-    setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
+    connect(this, SIGNAL(zoomScaleChanged(double)), scene, SLOT(updateGridUnits(double)));
+    connect(scene, &PlotScene::basicUnitUpdated, this, [this](){
+        unitRescale();
+    });
 
     centerOn(scene->sceneRect().center());
-    QRectF rect = visibleRect();
 
-    double currentSide = std::max(rect.width(), rect.height());
-    double desiredSide = PlotScene::UNIT_SCALE_SIDE;
-
-    double factor = currentSide / desiredSide;
-    scale(factor, factor);
-
-    setTransformationAnchor(anchorSaved);
+    unitRescale();
 }
 
 
@@ -46,18 +39,37 @@ QRectF PlotView::visibleRect(){
     return mapToScene(rect()).boundingRect();
 }
 
+
+void PlotView::unitRescale(){
+    QRectF rect = visibleRect();
+
+    double currentSide = std::max(rect.width(), rect.height());
+    double desiredSide = PlotScene::UNIT_SCALE_SIDE *
+                         PlotScene::N_DEFAULT_GRID_LINES * 0.5 *
+                         static_cast<PlotScene *>(scene())->getUnitScale();
+
+    double factor = currentSide / desiredSide;
+    QPointF newCenter = rect.center() / factor;
+
+    scale(factor, factor);
+    centerOn(newCenter);
+
+    zoomScale = 1;
+    rect = visibleRect();
+}
+
 void PlotView::wheelEvent(QWheelEvent *event){
     int angle = event->angleDelta().y();
     double scaleFactor = 1 + angle * SCROLL_FACTOR;
     scale(scaleFactor, scaleFactor);
-    m_zoomScale *= scaleFactor;
+    zoomScale *= scaleFactor;
 
-    emit zoomScaleChanged(m_zoomScale);
+    double width = visibleRect().width();
+    double height = visibleRect().height();
 
-    std::cout << m_zoomScale << std::endl;
-    //std::cout << mapToScene(viewport()->geometry()).boundingRect().x() << " " <<
-     //   mapToScene(viewport()->geometry()).boundingRect().y() << std::endl;
+    emit zoomScaleChanged(zoomScale);
 
+    std::cout << zoomScale << std::endl;
     std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << visibleRect().width() << " " << visibleRect().height() << std::endl;
 
 }
