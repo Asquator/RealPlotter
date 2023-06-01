@@ -19,7 +19,7 @@ public:
     double getGridScale(){return relativeGridScale;}
 
     static constexpr double SCENE_SIDE = INT_MAX;
-    static constexpr int N_DEFAULT_GRID_LINES = 15;
+    static constexpr int N_DEFAULT_GRID_LINES = 25;
 
     static const double UNIT_SCALE_SIDE;
 

@@ -7,7 +7,9 @@
 
 #include "function_entry.h"
 
-
+/**
+ * @brief The FunctionTable class Convenience class to store named functions
+ */
 class FunctionTable{
 
 public:

@@ -44,18 +44,16 @@ public:
 	void setModelData(QWidget *editor, QAbstractItemModel *model,
                           const QModelIndex &index) const override;
 
-    /**
-     * @brief updateEditorGeometry
-     * @param editor
-     * @param option
-     * @param index
-     */
 	void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const override;
 
 	QSize sizeHint (const QStyleOptionViewItem&, const QModelIndex&) const  override;
 
-	void setEditorType(EditorType);
+    /**
+     * @brief setEditorType sets defauly new editor
+     * @param type editor type
+     */
+    void setEditorType(EditorType type);
 
 private slots:
     void commitInput();

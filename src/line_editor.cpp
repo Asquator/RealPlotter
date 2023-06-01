@@ -14,7 +14,7 @@ LineEditor::LineEditor(QWidget *parent)
 
 	//view and layout
 	deleteButton->setText("X");
-    inputField->setFont(QFont("Monospace", 12));
+    inputField->setFont(QFont("Monospace", 18));
 
     setFixedHeight(50);
 
