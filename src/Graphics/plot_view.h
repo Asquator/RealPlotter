@@ -27,6 +27,8 @@ private:
 
     void unitRescale();
 
+    void drawBackground(QPainter *painter, const QRectF &rect) override;
+
 protected:
     void wheelEvent(QWheelEvent *event);
 

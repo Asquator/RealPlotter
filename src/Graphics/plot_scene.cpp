@@ -22,8 +22,10 @@ void PlotScene::addAxes(){
     QPen axesPen(Qt::black);
     axesPen.setWidth(3);
 
-    QGraphicsLineItem *x_axis = new QGraphicsLineItem(-width()/2, 0, width()/2, 0);
-    QGraphicsLineItem *y_axis = new QGraphicsLineItem(0, height()/2, 0, -height()/2);
+    QPointF center = sceneRect().center();
+
+    QGraphicsLineItem *x_axis = new QGraphicsLineItem(-width()/2, center.y(), width()/2, center.y());
+    QGraphicsLineItem *y_axis = new QGraphicsLineItem(center.x(), height()/2, center.x(), -height()/2);
 
     x_axis->setPen(axesPen);
     y_axis->setPen(axesPen);
@@ -96,6 +98,11 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
                         level, bottom + EXTRA_RENDER_OFFSET);
     }
 
+    /*
+    if(firstTime)
+    emit basicUnitUpdated();
+    firstTime = false;
+*/
 
 }
 

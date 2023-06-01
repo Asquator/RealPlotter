@@ -39,8 +39,11 @@ QRectF PlotView::visibleRect(){
     return mapToScene(rect()).boundingRect();
 }
 
+using std::abs;
 
 void PlotView::unitRescale(){
+    const double allowedScaleError = 0.0001;
+
     QRectF rect = visibleRect();
 
     double currentSide = std::max(rect.width(), rect.height());
@@ -48,14 +51,36 @@ void PlotView::unitRescale(){
                          PlotScene::N_DEFAULT_GRID_LINES * 0.5 *
                          static_cast<PlotScene *>(scene())->getUnitScale();
 
-    double factor = currentSide / desiredSide;
-    QPointF newCenter = rect.center() / factor;
+    while(abs(currentSide - desiredSide) / desiredSide > allowedScaleError){
+        double factor = currentSide / desiredSide;
+        QPointF c = rect.center();
+        QPointF newCenter = rect.center() / factor;
 
-    scale(factor, factor);
-    centerOn(newCenter);
+        scale(factor, factor);
+        centerOn(newCenter);
+
+        rect = visibleRect();
+
+        currentSide = std::max(rect.width(), rect.height());
+        desiredSide = PlotScene::UNIT_SCALE_SIDE *
+                             PlotScene::N_DEFAULT_GRID_LINES * 0.5 *
+                             static_cast<PlotScene *>(scene())->getUnitScale();
+
+    }
 
     zoomScale = 1;
     rect = visibleRect();
+}
+
+void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
+    QGraphicsView::drawBackground(painter, rect);
+
+    static bool firstTime = true;
+
+    if(firstTime)
+        unitRescale();
+
+    firstTime = false;
 }
 
 void PlotView::wheelEvent(QWheelEvent *event){
