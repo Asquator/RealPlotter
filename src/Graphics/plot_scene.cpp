@@ -58,17 +58,17 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     const QPointF sceneCenter = sceneRect().center();
     QPen pen = QPen(Qt::black);
     pen.setCosmetic(true);
-
     painter->setPen(pen);
-    std::cout << TEXT_WIDTH_TO_PLOT_SIZE * rect.width() << std::endl;
     painter->setFont(QFont("Arial", TEXT_WIDTH_TO_PLOT_SIZE * rect.width(), 500));
 
-    double coordGap = UNIT_SCALE_SIDE / relativeGridScale;
-    double realGap = 1 / absoluteZoomScale;
-
-    double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
+    const double coordGap = UNIT_SCALE_SIDE / relativeGridScale;
+    const double realGap = 1 / absoluteZoomScale;
+    const double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
+    const double textWidth = TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 5,
+                textHeight = TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2;
 
     double coordLevel, gridLabel, startUnitCoord;
+    int labelFlags = 0;
 
     //horizontal
 
@@ -80,9 +80,14 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
         painter->drawLine(left - EXTRA_RENDER_OFFSET, coordLevel,
                         right + EXTRA_RENDER_OFFSET, coordLevel);
 
-        painter->drawText(sceneCenter.x(), coordLevel, TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 10,
-                                                     TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2.5,
-                          Qt::AlignVCenter | Qt::AlignVCenter, QString::number(-gridLabel));
+        if(sceneCenter.x() > right)
+                labelFlags |= Qt::AlignRight;
+
+        else
+                labelFlags |= Qt::AlignLeft;
+
+        painter->drawText(min(max(sceneCenter.x(), left), right - textWidth), coordLevel, textWidth, textHeight,
+                          labelFlags, QString::number(-gridLabel));
     }
 
     //vertical
@@ -95,12 +100,13 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
         painter->drawLine(coordLevel, top - EXTRA_RENDER_OFFSET,
                         coordLevel, bottom + EXTRA_RENDER_OFFSET);
 
-        painter->drawText(coordLevel, sceneCenter.y(), TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 10,
-                                                    TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2.5,
-                          Qt::AlignVCenter | Qt::AlignVCenter, QString::number(gridLabel));
+        painter->drawText(coordLevel, min(max(sceneCenter.y(), top), bottom - textHeight), textWidth, textHeight,
+                          Qt::AlignLeft, QString::number(gridLabel));
     }
 
 }
+
+
 
 template <int N> class CircularScaler {
 public:
