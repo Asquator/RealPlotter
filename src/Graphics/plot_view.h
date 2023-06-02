@@ -23,7 +23,7 @@ signals:
 private:
     double zoomScale = 1;
 
-    const double SCROLL_FACTOR = 0.0005;
+    const double SCROLL_FACTOR = 0.001;
 
     void unitRescale();
 
