@@ -35,6 +35,9 @@ void PlotScene::addAxes(){
 
     addItem(x_axis);
     addItem(y_axis);
+
+    QGraphicsLineItem *i = new QGraphicsLineItem(-10000,-10000,10000,10000);
+    addItem(i);
 }
 
 void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
@@ -186,5 +189,10 @@ void PlotScene::updateGridUnits(double newViewScale){
         relativeGridScale = 1;
         emit basicUnitUpdated();
     }
+
+}
+
+
+void PlotScene::onRowsInserted(const QModelIndex &parent, int first, int last){
 
 }

@@ -29,6 +29,8 @@ private:
 
     void drawBackground(QPainter *painter, const QRectF &rect) override;
 
+    void drawForeground(QPainter *painter, const QRectF &rect) override;
+
 protected:
     void wheelEvent(QWheelEvent *event);
 

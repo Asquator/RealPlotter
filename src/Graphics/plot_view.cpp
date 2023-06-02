@@ -22,6 +22,9 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 
 }
 
+void PlotView::drawForeground(QPainter *painter, const QRectF &rect){
+
+}
 
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);

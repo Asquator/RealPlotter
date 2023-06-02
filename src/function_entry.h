@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QMetaType>
+#include <QGraphicsPathItem>
 
 #include<RealFunctionLib/real_function.h>
 
@@ -54,6 +55,8 @@ private:
     char name = '\0';
     QString inputString;
     RealFunctionLib::RealFunction function;
+
+    QGraphicsPathItem *graphicPath;
 };
 
 

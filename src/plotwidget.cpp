@@ -20,6 +20,9 @@ PlotWidget::PlotWidget(QWidget *parent)
     connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), funcListView,
             SLOT(onRowsInserted(QModelIndex,int,int)));
 
+    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            SLOT(onRowsInserted(QModelIndex, int, int)));
+
     funcListView->setItemDelegate(delegate);
 
     delegate->setEditorType(FunctionEntryDelegate::EditorType::DummyLast);
