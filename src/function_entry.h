@@ -6,7 +6,7 @@
 
 #include<RealFunctionLib/real_function.h>
 
-class FunctionEntry{
+class FunctionEntry {
 
 public:
     FunctionEntry(){qRegisterMetaType<FunctionEntry>();}
@@ -48,6 +48,7 @@ public:
     inline RealFunctionLib::RealFunction getFunction() const{
         return function;
     }
+
 
 private:
     char name = '\0';

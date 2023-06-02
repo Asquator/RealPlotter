@@ -16,7 +16,7 @@ class ParseWorker : public QObject, public QRunnable{
 public:
     ParseWorker(const QString &, const FunctionTable &);
 
-    void run();
+    void run() override;
 
 private:
     QString input;

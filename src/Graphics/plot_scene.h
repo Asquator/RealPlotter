@@ -36,7 +36,7 @@ signals:
     void basicUnitUpdated();
 
 protected:
-    void drawBackground(QPainter *painter, const QRectF &rect);
+    void drawBackground(QPainter *painter, const QRectF &rect) override;
 
 private:
     //number of frames to render at each side (invisible at the time of rendering)
