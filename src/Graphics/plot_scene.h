@@ -18,7 +18,7 @@ public:
     void addAxes();
     double getGridScale(){return relativeGridScale;}
 
-    static constexpr double SCENE_SIDE = 1000000;
+    static constexpr double SCENE_SIDE = 300000;
     static constexpr int N_DEFAULT_GRID_LINES = 15;
 
     static const double UNIT_SCALE_SIDE;

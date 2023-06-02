@@ -22,9 +22,10 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 
 }
 
+
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
-    connect(this, SIGNAL(zoomScaleChanged(double)), scene, SLOT(updateGridUnits(double)));
+
     connect(scene, &PlotScene::basicUnitUpdated, this, [this](){
         unitRescale();
     });
@@ -39,7 +40,10 @@ QRectF PlotView::visibleRect(){
     return mapToScene(rect()).boundingRect();
 }
 
+
+
 using std::abs;
+
 
 void PlotView::unitRescale(){
     const double allowedScaleError = 0.0001;
@@ -72,6 +76,7 @@ void PlotView::unitRescale(){
     rect = visibleRect();
 }
 
+
 void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
     QGraphicsView::drawBackground(painter, rect);
 
@@ -83,6 +88,7 @@ void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
     firstTime = false;
 }
 
+
 void PlotView::wheelEvent(QWheelEvent *event){
     int angle = event->angleDelta().y();
     double scaleFactor = 1 + angle * SCROLL_FACTOR;
@@ -92,9 +98,8 @@ void PlotView::wheelEvent(QWheelEvent *event){
     double width = visibleRect().width();
     double height = visibleRect().height();
 
-    emit zoomScaleChanged(zoomScale);
+    static_cast<PlotScene *>(scene())->updateGridUnits(zoomScale);
 
     std::cout << zoomScale << std::endl;
-    std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << visibleRect().width() << " " << visibleRect().height() << std::endl;
-
+    std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << width << " " << height << std::endl;
 }
