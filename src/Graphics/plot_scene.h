@@ -18,8 +18,8 @@ public:
     void addAxes();
     double getGridScale(){return relativeGridScale;}
 
-    static constexpr double SCENE_SIDE = INT_MAX;
-    static constexpr int N_DEFAULT_GRID_LINES = 25;
+    static constexpr double SCENE_SIDE = 1000000;
+    static constexpr int N_DEFAULT_GRID_LINES = 15;
 
     static const double UNIT_SCALE_SIDE;
 
@@ -43,9 +43,9 @@ private:
     static constexpr int EXTRA_RENDER_OFFSET = 100;
     static const double MAX_RECOMMENDED_ZOOM;
 
-    const double LINES_WIDTH_TO_PLOT_SIZE = 0.0015;
+    const double TEXT_WIDTH_TO_PLOT_SIZE = 0.015;
 
-    //double absoluteZoomScale = 1;
+    double absoluteZoomScale = 1;
     double relativeGridScale = 1;
     double unitScale = 1;
 

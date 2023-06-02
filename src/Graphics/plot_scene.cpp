@@ -42,23 +42,7 @@ void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
     setBackgroundBrush(Qt::white);
     QGraphicsScene::drawBackground(painter, rect);
 
-    //  std::pair<double, double> penSizes = calcAxesWidth(rect);
-
-    /*
-    //draw axes
-    QPen pen = QPen(Qt::black);GraphicsLineItem(0, height()/2, 0, -height()/2);
-
-    x_axis->setPen(axesPen);
-    y_axis->setPen(axesPen);
-
-    x_axis->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-    y_axis->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-
-    addItem(x_axis);
-    addItem(y_axis);
-}
-
-*/
+    //draw dynamic grid dependent on the rect position
     drawGrid(painter, rect);
 }
 
@@ -68,45 +52,57 @@ double PlotScene::getUnitScale() const
 }
 
 
-using std::fabs; using std::fmod;
+using std::fabs; using std::fmod; using std::min; using std::max;
 
 void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
-
+    const QPointF sceneCenter = sceneRect().center();
     QPen pen = QPen(Qt::black);
     pen.setCosmetic(true);
 
-    double gap = UNIT_SCALE_SIDE / relativeGridScale;
+    painter->setPen(pen);
+    std::cout << TEXT_WIDTH_TO_PLOT_SIZE * rect.width() << std::endl;
+    painter->setFont(QFont("Arial", TEXT_WIDTH_TO_PLOT_SIZE * rect.width(), 500));
+
+    double coordGap = UNIT_SCALE_SIDE / relativeGridScale;
+    double realGap = 1 / absoluteZoomScale;
+
     double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
 
-    painter->setPen(pen);
+    double coordLevel, gridLabel, startUnitCoord;
 
-    double level;
     //horizontal
 
+    startUnitCoord = round(top / coordGap);
     //iterate from top to bottom and draw lines
-    for (level = gap * round(top / gap) - gap; level < bottom + gap; level += gap) {
-        painter->drawLine(left - EXTRA_RENDER_OFFSET, level,
-                        right + EXTRA_RENDER_OFFSET, level);
+    for (coordLevel = coordGap * startUnitCoord, gridLabel = realGap * startUnitCoord;
+        coordLevel < bottom + coordGap;
+        coordLevel += coordGap, gridLabel += realGap) {
+        painter->drawLine(left - EXTRA_RENDER_OFFSET, coordLevel,
+                        right + EXTRA_RENDER_OFFSET, coordLevel);
+
+        painter->drawText(sceneCenter.x(), coordLevel, TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 10,
+                                                     TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2.5,
+                          Qt::AlignVCenter | Qt::AlignVCenter, QString::number(-gridLabel));
     }
 
     //vertical
-    painter->setPen(pen);
 
+    startUnitCoord = round(left / coordGap);
     //iterate from left to right and draw lines
-    for (level = gap * round(left / gap) - gap; level <= right + gap; level += gap) {
-        painter->drawLine(level, top - EXTRA_RENDER_OFFSET,
-                        level, bottom + EXTRA_RENDER_OFFSET);
-    }
+    for (coordLevel = coordGap * startUnitCoord, gridLabel = realGap * startUnitCoord;
+        coordLevel <= right + coordGap;
+        coordLevel += coordGap, gridLabel += realGap) {
+        painter->drawLine(coordLevel, top - EXTRA_RENDER_OFFSET,
+                        coordLevel, bottom + EXTRA_RENDER_OFFSET);
 
-    /*
-    if(firstTime)
-    emit basicUnitUpdated();
-    firstTime = false;
-*/
+        painter->drawText(coordLevel, sceneCenter.y(), TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 10,
+                                                    TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2.5,
+                          Qt::AlignVCenter | Qt::AlignVCenter, QString::number(gridLabel));
+    }
 
 }
 
-template <int N> class CircularScaler{
+template <int N> class CircularScaler {
 public:
     CircularScaler(std::array<double, N> arr, int startUpscalePos):
         factors(arr), pos{startUpscalePos} {}
@@ -162,12 +158,16 @@ void PlotScene::updateGridUnits(double newViewScale){
     double zoomRatio = newViewScale / relativeGridScale;
 
     if(zoomRatio >= scaler.nextUp()){ //zoomed in
-        relativeGridScale *= scaler.scaleUp();
+        nextScale = scaler.scaleUp();
+        relativeGridScale *= nextScale;
+        absoluteZoomScale *= nextScale;
         unitScale = 1;
     }
 
     else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
-        relativeGridScale /= scaler.scaleDown();
+        nextScale = scaler.scaleDown();
+        relativeGridScale /= nextScale;
+        absoluteZoomScale /= nextScale;
         unitScale = 1;
     }
 

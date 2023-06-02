@@ -17,8 +17,8 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 
     //disable the scrollers
     setDragMode(QGraphicsView::ScrollHandDrag);
-    //setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-   // setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 }
 
