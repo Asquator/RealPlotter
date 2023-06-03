@@ -19,6 +19,7 @@ public:
 
 signals:
     void zoomScaleChanged(double);
+    void viewChanged();
 
 private:
     double zoomScale = 1;

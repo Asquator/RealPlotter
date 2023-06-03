@@ -24,8 +24,10 @@ public:
     PlotGraph(QWidget *parent);
 
 public slots:
-    void addToPlot(const QModelIndex &index);
-    void removeFromPlot(const QModelIndex &index);
+    void addRefreshPlot(QSharedPointer<FunctionEntry>);
+    void removeFromPlot(QSharedPointer<FunctionEntry>);
+
+    void refreshAll();
 
 private:
     static constexpr double DELTA_RATIO = 10000;

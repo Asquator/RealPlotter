@@ -1,9 +1,13 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGraphicsView>
+#include <QSharedPointer>
 
 #include "plotwidget.h"
 #include "plot_graph.h"
+#include "function_entry.h"
+
+Q_DECLARE_METATYPE(QSharedPointer<FunctionEntry>)
 
 PlotWidget::PlotWidget(QWidget *parent)
     :QWidget(parent),
@@ -28,11 +32,11 @@ PlotWidget::PlotWidget(QWidget *parent)
 
     PlotGraph *plotManager = new PlotGraph(this);
 
-    connect(model, SIGNAL(parsedFunction(QModelIndex)), plotManager,
-            SLOT(addToPlot(QModelIndex)));
+    connect(model, &FunctionListModel::parsedFunction, plotManager,
+            &PlotGraph::addRefreshPlot);
 
-    connect(model, SIGNAL(invalidated(QModelIndex)), plotManager,
-            SLOT(removeFromPlot(QModelIndex)));
+    connect(model, &FunctionListModel::invalidated, plotManager,
+            &PlotGraph::removeFromPlot);
 
 	//layout management
     QHBoxLayout *layout = new QHBoxLayout;

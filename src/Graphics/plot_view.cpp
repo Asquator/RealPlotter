@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <QScrollBar>
+
 #include "plot_view.h"
 
 
@@ -19,6 +21,9 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
     setDragMode(QGraphicsView::ScrollHandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::viewChanged);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::viewChanged);
 }
 
 

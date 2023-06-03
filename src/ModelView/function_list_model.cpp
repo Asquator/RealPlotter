@@ -111,11 +111,11 @@ void FunctionListModel::tryParse(const QModelIndex &index){
 
             handleParsed(index);    //further processing if needed
 
-            emit parsedFunction(index);
+            emit parsedFunction(funcList[persIndex.row()]);
         }
 
         else
-            emit invalidated(index);
+            emit invalidated(funcList.at(persIndex.row()));
 
     });
 
@@ -152,7 +152,7 @@ bool FunctionListModel::removeRows(int position, int rows, const QModelIndex &pa
             namedFunctions.remove(funcList.at(position)->getName());
         }
 
-        emit invalidated(index(position));
+        emit invalidated(funcList.at(position));
         funcList.removeAt(position);
     }
 

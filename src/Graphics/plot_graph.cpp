@@ -1,5 +1,7 @@
-#include <QHBoxLayout>
 #include <future>
+
+#include <QList>
+#include <QHBoxLayout>
 
 #include "plot_graph.h"
 #include "function_list_model.h"
@@ -14,6 +16,9 @@ PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotSce
 
     canvasView->setScene(canvasScene);
 
+    connect(canvasView, SIGNAL(viewChanged()), this, SLOT(refreshAll()));
+
+    //Layout
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setContentsMargins(0,0,0,0);
     canvasView->setContentsMargins(0,0,0,0);
@@ -22,28 +27,25 @@ PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotSce
     setLayout(layout);
 }
 
-void PlotGraph::addToPlot(const QModelIndex &index){
-    FunctionListModel *listModel = static_cast<FunctionListModel *>(sender());
-
-    auto entryPtr = listModel->data(index, Qt::DisplayRole).value<QSharedPointer<FunctionEntry>>();
+void PlotGraph::addRefreshPlot(QSharedPointer<FunctionEntry> entryPtr){
     RealFunction func = entryPtr->getFunction();
 
     QRectF rect = canvasView->visibleRect();
 
     double x1 = canvasScene->mapToRealCoords(rect.left(), Axis::X);
-    auto r = rect.right();
     double x2 = canvasScene->mapToRealCoords(rect.right(), Axis::X);
     double delta = (x2 - x1) / DELTA_RATIO;
 
     future<std::vector<real_type>> valuesFuture = std::async(std::launch::async, evaluate, func, x1, x2, delta);
 
-    auto vals = valuesFuture.get();
+    canvasScene->removeItem(functions[entryPtr]);
+
+    removeFromPlot(entryPtr);
 
     QPen pen;
-
     pen.setCosmetic(true);
 
-    QPainterPath path = buildPath(vals, x1, delta);
+    QPainterPath path = buildPath(valuesFuture.get(), x1, delta);
 
     QGraphicsPathItem *item = canvasScene->addPath(path, pen);
 
@@ -51,14 +53,19 @@ void PlotGraph::addToPlot(const QModelIndex &index){
 }
 
 
-void PlotGraph::removeFromPlot(const QModelIndex &index){
-    FunctionListModel *listModel = static_cast<FunctionListModel *>(sender());
-
-    auto entryPtr = listModel->data(index, Qt::DisplayRole).value<QSharedPointer<FunctionEntry>>();
+void PlotGraph::removeFromPlot(QSharedPointer<FunctionEntry> entryPtr){
     canvasScene->removeItem(functions[entryPtr]);
 
     delete functions[entryPtr];
     functions.remove(entryPtr);
+}
+
+
+void PlotGraph::refreshAll(){
+    QList<QSharedPointer<FunctionEntry>> keys = functions.keys();
+
+    for(const auto &ptr : keys)
+        addRefreshPlot(ptr);
 }
 
 
