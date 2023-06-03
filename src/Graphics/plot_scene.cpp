@@ -147,25 +147,16 @@ private:
     std::array<double, N> factors;
 };
 
-/*
-void PlotScene::exceededZoomIn(){
-    relativeZoomScale = 1;
-}
-
-void PlotScene::exceededZoomOut(){
-    relativeZoomScale = 1;
-}
-*/
 
 void PlotScene::updateGridUnits(double newViewScale){
     static CircularScaler<3> scaler({2,2.5,2}, 0);
     bool updated = false;
     double nextScale;
 
-    //unitScale *= newViewScale;
-
     std::cout << "SCALE: " << relativeGridScale;
     double zoomRatio = newViewScale / relativeGridScale;
+
+    unitScale *= zoomRatio;
 
     if(zoomRatio >= scaler.nextUp()){ //zoomed in
         nextScale = scaler.scaleUp();
