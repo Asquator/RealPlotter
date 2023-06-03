@@ -3,14 +3,13 @@
 #include <QGraphicsView>
 
 #include "plotwidget.h"
+#include "plot_graph.h"
 
 PlotWidget::PlotWidget(QWidget *parent)
     :QWidget(parent),
     model(new FunctionListModel(this)),
     delegate(new FunctionEntryDelegate(this)),
-    funcListView(new FunctionListView(this)),
-    canvasScene(new PlotScene(this)),
-    canvasView(new PlotView(this))
+    funcListView(new FunctionListView(this))
 {
     setMinimumSize(700,400);
 
@@ -20,9 +19,6 @@ PlotWidget::PlotWidget(QWidget *parent)
     connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), funcListView,
             SLOT(onRowsInserted(QModelIndex,int,int)));
 
-    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            SLOT(onRowsInserted(QModelIndex, int, int)));
-
     funcListView->setItemDelegate(delegate);
 
     delegate->setEditorType(FunctionEntryDelegate::EditorType::DummyLast);
@@ -30,19 +26,25 @@ PlotWidget::PlotWidget(QWidget *parent)
 
     delegate->setEditorType(FunctionEntryDelegate::EditorType::Entry);
 
-    canvasView->setScene(canvasScene);
+    PlotGraph *plotManager = new PlotGraph(this);
+
+    connect(model, SIGNAL(parsedFunction(QModelIndex)), plotManager,
+            SLOT(addToPlot(QModelIndex)));
+
+    connect(model, SIGNAL(invalidated(QModelIndex)), plotManager,
+            SLOT(removeFromPlot(QModelIndex)));
 
 	//layout management
     QHBoxLayout *layout = new QHBoxLayout;
 	QSplitter *splitter = new QSplitter;
 
     splitter->addWidget(funcListView);
-    splitter->addWidget(canvasView);
+    splitter->addWidget(plotManager);
     splitter->setSizes(QList<int>{200,600});
 
 	layout->addWidget(splitter);
 
-    canvasView->setContentsMargins(0,0,0,0);
+    plotManager->setContentsMargins(0,0,0,0);
     funcListView->setContentsMargins(0,0,0,0);
 	splitter->setContentsMargins(0,0,0,0);
 	layout->setContentsMargins(0,0,0,0);

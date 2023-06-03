@@ -29,9 +29,6 @@ private:
     FunctionListModel *model;
     FunctionEntryDelegate *delegate;
 
-    PlotScene *canvasScene;
-    PlotView *canvasView;
-
     FunctionTable namedFunctions;
 };
 #endif // PLOTWIDGET_H

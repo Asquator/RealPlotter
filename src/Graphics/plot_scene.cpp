@@ -3,8 +3,13 @@
 #include <iostream>
 #include <cmath>
 #include <array>
+#include <vector>
+#include <future>
+
+#include <RealFunctionLib/real_function.h>
 
 #include "plot_scene.h"
+#include "function_list_model.h"
 
 
 PlotScene::PlotScene(QWidget *parent)
@@ -35,9 +40,6 @@ void PlotScene::addAxes(){
 
     addItem(x_axis);
     addItem(y_axis);
-
-    QGraphicsLineItem *i = new QGraphicsLineItem(-10000,-10000,10000,10000);
-    addItem(i);
 }
 
 void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
@@ -108,7 +110,6 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     }
 
 }
-
 
 
 template <int N> class CircularScaler {
@@ -193,6 +194,6 @@ void PlotScene::updateGridUnits(double newViewScale){
 }
 
 
-void PlotScene::onRowsInserted(const QModelIndex &parent, int first, int last){
+using std::vector; using std::future;
 
-}
+

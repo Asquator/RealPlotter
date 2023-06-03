@@ -29,10 +29,10 @@ public:
 signals:
 	void lastRemoved();
     void parsedFunction(QModelIndex);
+    void invalidated(QModelIndex);
 
 
 public slots:
-
     /**
      * @brief addEmptyLine adds empty line at the end of the list
      */

@@ -19,12 +19,8 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
     setDragMode(QGraphicsView::ScrollHandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
 }
 
-void PlotView::drawForeground(QPainter *painter, const QRectF &rect){
-
-}
 
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
@@ -42,7 +38,6 @@ void PlotView::setScene(PlotScene *scene){
 QRectF PlotView::visibleRect(){
     return mapToScene(rect()).boundingRect();
 }
-
 
 
 using std::abs;

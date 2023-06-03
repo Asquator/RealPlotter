@@ -7,7 +7,6 @@
 #include <QGraphicsScene>
 #include <QPainter>
 
-
 class PlotScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -27,7 +26,6 @@ public:
 
 public slots:
     void updateGridUnits(double newViewScale);
-    void onRowsInserted(const QModelIndex &parent, int first, int last);
 
 signals:
     void basicUnitUpdated();
@@ -47,7 +45,6 @@ private:
     double unitScale = 1;
 
     void drawGrid(QPainter *painter, const QRectF &rect);
-
 };
 
 #endif // PLOTCANVAS_H

@@ -15,26 +15,31 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 set(PROJECT_SOURCES
         src/main.cpp
         src/plotwidget.cpp
-        src/function_list_model.cpp
-        src/function_entry_delegate.cpp
-        src/function_list_view.cpp
+
         src/function_entry.cpp
         src/function_table.cpp
         src/line_editor.cpp
 
         src/line_editor.h
-        src/function_table.h
-        src/function_list_view.h
-        src/function_entry_delegate.h
-        src/function_list_model.h
         src/plotwidget.h
         src/function_entry.h
+		src/function_table.h
 
+		src/ModelView/function_list_model.h
+		src/ModelView/function_list_view.h
+		src/ModelView/function_entry_delegate.h
+
+		src/ModelView/function_list_model.cpp
+		src/ModelView/function_entry_delegate.cpp
+		src/ModelView/function_list_view.cpp
+
+		src/Graphics/plot_view.h
+		src/Graphics/plot_scene.h
+		src/Graphics/plot_graph.h
+
+		src/Graphics/plot_graph.cpp
         src/Graphics/plot_scene.cpp
         src/Graphics/plot_view.cpp
-
-        src/Graphics/plot_view.h
-        src/Graphics/plot_scene.h
 
         src/Parser/real_parser.h
         src/Parser/parse_worker.h
@@ -70,7 +75,8 @@ endif()
 
 target_include_directories(RealPlotter PRIVATE ${CMAKE_SOURCE_DIR}/src
                                         PRIVATE ${CMAKE_SOURCE_DIR}/src/Parser
-                                        PRIVATE ${CMAKE_SOURCE_DIR}/src/Graphics)
+										PRIVATE ${CMAKE_SOURCE_DIR}/src/Graphics
+										PRIVATE ${CMAKE_SOURCE_DIR}/src/ModelView)
 
 target_link_libraries(RealPlotter PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
                                     PRIVATE RealFunctionLib)
