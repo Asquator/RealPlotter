@@ -99,13 +99,14 @@ bool FunctionListModel::setData(const QModelIndex &index,
  */
 void FunctionListModel::tryParse(const QModelIndex &index){
     QPersistentModelIndex persIndex = index;
+    bool parsed = false;
 
     //parser task
     ParseWorker *parseWorker = new ParseWorker(funcList[index.row()]->getString(), namedFunctions);
 
     //on successful parsing, save the result in the model and do further processing
     connect(parseWorker, &ParseWorker::parsed, this,
-            [=, this](const FunctionEntry &entry){
+            [=, &parsed, this](const FunctionEntry &entry){
 
         //if the index is valid, insert the parsed function entry to the list at the given index
         if(persIndex.isValid()){
@@ -116,12 +117,12 @@ void FunctionListModel::tryParse(const QModelIndex &index){
             handleParsed(index);    //further processing if needed
 
             emit parsedFunction(funcList[persIndex.row()]);
+            parsed = true;
         }
-
-        else
-            emit invalidated(funcList.at(persIndex.row()));
-
     });
+
+    if(!parsed)
+        emit invalidated(funcList.at(persIndex.row()));
 
     parseThreadPool.start(parseWorker);
 }
