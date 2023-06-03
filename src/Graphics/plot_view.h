@@ -18,7 +18,6 @@ public:
     QRectF visibleRect();
 
 signals:
-    void zoomScaleChanged(double);
     void viewChanged();
 
 private:

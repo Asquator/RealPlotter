@@ -2,9 +2,13 @@
 
 #include "function_list_model.h"
 #include "parse_worker.h"
+#include "function_entry.h"
+
 #include <iostream>
 
 using namespace RealFunctionLib;
+
+Q_DECLARE_METATYPE(QSharedPointer<FunctionEntry>)
 
 FunctionListModel::FunctionListModel(QObject *parent):
     QAbstractListModel(parent) {

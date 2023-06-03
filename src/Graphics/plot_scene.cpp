@@ -1,10 +1,11 @@
 #include <float.h>
-#include <QGraphicsItem>
 #include <iostream>
 #include <cmath>
 #include <array>
 #include <vector>
 #include <future>
+
+#include <QGraphicsItem>
 
 #include <RealFunctionLib/real_function.h>
 
@@ -58,12 +59,17 @@ double PlotScene::getUnitScale() const
 
 double PlotScene::mapToRealCoords(double crd, Axis ax)
 {
-    return (ax == Axis::Y ? -1 : 1) * crd / UNIT_SCALE_SIDE;
+    return (ax == Axis::Y ? -1 : 1) * crd / coordinateMappingCoef;
 }
 
 double PlotScene::mapToSceneCoords(double crd, Axis ax)
 {
-    return (ax == Axis::Y ? -1 : 1) * crd * UNIT_SCALE_SIDE;
+    return (ax == Axis::Y ? -1 : 1) * crd * coordinateMappingCoef;
+}
+
+double PlotScene::getUnitScaledSide()
+{
+    return UNIT_SCALE_SIDE * N_DEFAULT_GRID_LINES * getUnitScale();
 }
 
 
@@ -175,6 +181,7 @@ void PlotScene::updateGridUnits(double newViewScale){
         nextScale = scaler.scaleUp();
         relativeGridScale *= nextScale;
         absoluteGridScale *= nextScale;
+        unitGridScale *= nextScale;
         unitScale = 1;
     }
 
@@ -182,19 +189,31 @@ void PlotScene::updateGridUnits(double newViewScale){
         nextScale = scaler.scaleDown();
         relativeGridScale /= nextScale;
         absoluteGridScale /= nextScale;
+        unitGridScale /= nextScale;
         unitScale = 1;
     }
 
-    if(relativeGridScale >= MAX_RECOMMENDED_ZOOM){
-        relativeGridScale = 1;
+    if(relativeGridScale >= MAX_RECOMMENDED_ZOOM){ //zoomed in exceeding scene size
+        relativeGridScale = unitScale;
+        double s = unitGridScale;
+        coordinateMappingCoef *= s;
+        emit basicUnitUpdated();
+        unitGridScale = 1;
+    }
+
+    else if(relativeGridScale <= 1 / MAX_RECOMMENDED_ZOOM){ //zoomed out exceeding scene size
+        relativeGridScale = unitScale;
+        double s = absoluteGridScale;
+        coordinateMappingCoef *= unitGridScale;
+        unitGridScale = 1;
         emit basicUnitUpdated();
     }
 
-    else if(relativeGridScale <= 1 / MAX_RECOMMENDED_ZOOM){
-        relativeGridScale = 1;
-        emit basicUnitUpdated();
-    }
+}
 
+void PlotScene::scaleCoordinatesFactor(double scale)
+{
+    coordinateMappingCoef *= scale;
 }
 
 

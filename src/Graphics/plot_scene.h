@@ -18,7 +18,7 @@ public:
     double getGridScale(){return relativeGridScale;}
 
     static constexpr double SCENE_SIDE = 10000000;
-    static constexpr int N_DEFAULT_GRID_LINES = 15;
+    static constexpr int N_DEFAULT_GRID_LINES = 10;
 
     static const double UNIT_SCALE_SIDE;
 
@@ -31,8 +31,11 @@ public:
     double mapToRealCoords(double sceneCoordinate, Axis);
     double mapToSceneCoords(double realCoordinate, Axis);
 
+    double getUnitScaledSide();
+
 public slots:
     void updateGridUnits(double newViewScale);
+    void scaleCoordinatesFactor(double scale);
 
 signals:
     void basicUnitUpdated();
@@ -48,8 +51,11 @@ private:
     const double TEXT_WIDTH_TO_PLOT_SIZE = 0.015;
 
     double absoluteGridScale = 1;
+    double unitGridScale = 1;
     double relativeGridScale = 1;
     double unitScale = 1;
+
+    double coordinateMappingCoef = UNIT_SCALE_SIDE;
 
     void drawGrid(QPainter *painter, const QRectF &rect);
 };

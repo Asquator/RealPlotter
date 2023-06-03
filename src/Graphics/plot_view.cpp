@@ -34,6 +34,8 @@ void PlotView::setScene(PlotScene *scene){
         unitRescale();
     });
 
+    connect(this, SIGNAL(viewScaled(double)), scene, SLOT(scaleCoordinatesFactor(double)));
+
     centerOn(scene->sceneRect().center());
 
     unitRescale();
@@ -49,34 +51,29 @@ using std::abs;
 
 
 void PlotView::unitRescale(){
-    const double allowedScaleError = 0.0001;
+    const double allowedScaleError = 0.000001;
 
     QRectF rect = visibleRect();
 
     double currentSide = std::max(rect.width(), rect.height());
-    double desiredSide = PlotScene::UNIT_SCALE_SIDE *
-                         PlotScene::N_DEFAULT_GRID_LINES * 0.5 *
-                         static_cast<PlotScene *>(scene())->getUnitScale();
+    double desiredSide = static_cast<PlotScene *>(scene())->getUnitScaledSide();
 
     while(abs(currentSide - desiredSide) / desiredSide > allowedScaleError){
         double factor = currentSide / desiredSide;
-        QPointF c = rect.center();
         QPointF newCenter = rect.center() / factor;
 
         scale(factor, factor);
         centerOn(newCenter);
 
+        //emit viewScaled(factor);
+
         rect = visibleRect();
 
         currentSide = std::max(rect.width(), rect.height());
-        desiredSide = PlotScene::UNIT_SCALE_SIDE *
-                             PlotScene::N_DEFAULT_GRID_LINES * 0.5 *
-                             static_cast<PlotScene *>(scene())->getUnitScale();
-
+        desiredSide = static_cast<PlotScene *>(scene())->getUnitScaledSide();
     }
 
     zoomScale = 1;
-    rect = visibleRect();
 }
 
 
@@ -97,6 +94,7 @@ void PlotView::wheelEvent(QWheelEvent *event){
     double scaleFactor = 1 + angle * SCROLL_FACTOR;
     scale(scaleFactor, scaleFactor);
     zoomScale *= scaleFactor;
+    emit viewChanged();
 
     double width = visibleRect().width();
     double height = visibleRect().height();
