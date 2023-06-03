@@ -58,12 +58,12 @@ double PlotScene::getUnitScale() const
 
 double PlotScene::mapToRealCoords(double crd, Axis ax)
 {
-    return (ax == Axis::Y ? -1 : 1) * crd / UNIT_SCALE_SIDE / absoluteGridScale;
+    return (ax == Axis::Y ? -1 : 1) * crd / UNIT_SCALE_SIDE;
 }
 
 double PlotScene::mapToSceneCoords(double crd, Axis ax)
 {
-    return (ax == Axis::Y ? -1 : 1) * crd * UNIT_SCALE_SIDE * absoluteGridScale;
+    return (ax == Axis::Y ? -1 : 1) * crd * UNIT_SCALE_SIDE;
 }
 
 
