@@ -197,10 +197,12 @@ RealFunction operator/(const RealFunction &left, const RealFunction &right){
 
 vector<real_type> evaluate(RealFunction function, real_type x1, real_type x2,
                            real_type delta){
-    vector<real_type> ret(round(x2 - x1) / delta + 1);
+    vector<real_type> ret;
+
+    ret.reserve(round((x2 - x1) / delta) + 1);
 
     for(real_type p = x1; p <= x2; p += delta)
-        ret.push_back(function.isDefined(p) ? p : Real_Math::real_NaN);
+        ret.push_back(function.isDefined(p) ? function(p) : Real_Math::real_NaN);
 
     return ret;
 }

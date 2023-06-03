@@ -56,6 +56,16 @@ double PlotScene::getUnitScale() const
     return unitScale;
 }
 
+double PlotScene::mapToRealCoords(double crd, Axis ax)
+{
+    return (ax == Axis::Y ? -1 : 1) * crd / UNIT_SCALE_SIDE / absoluteGridScale;
+}
+
+double PlotScene::mapToSceneCoords(double crd, Axis ax)
+{
+    return (ax == Axis::Y ? -1 : 1) * crd * UNIT_SCALE_SIDE * absoluteGridScale;
+}
+
 
 using std::fabs; using std::fmod; using std::min; using std::max;
 
@@ -67,9 +77,9 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     painter->setFont(QFont("Arial", TEXT_WIDTH_TO_PLOT_SIZE * rect.width(), 500));
 
     const double coordGap = UNIT_SCALE_SIDE / relativeGridScale;
-    const double realGap = 1 / absoluteZoomScale;
+    const double realGap = 1 / absoluteGridScale;
     const double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
-    const double textWidth = TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 5,
+    const double textWidth = TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 8,
                 textHeight = TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2;
 
     double coordLevel, gridLabel, startUnitCoord;
@@ -153,7 +163,10 @@ void PlotScene::updateGridUnits(double newViewScale){
     bool updated = false;
     double nextScale;
 
-    std::cout << "SCALE: " << relativeGridScale;
+    std::cout << "UNIT: " << UNIT_SCALE_SIDE << " RELATIVE SCALE: " << relativeGridScale <<
+                                                " ABSOLUTE SCALE :" << absoluteGridScale <<
+                                                " UNIT SCALE: " << unitScale <<
+                                                std::endl;
     double zoomRatio = newViewScale / relativeGridScale;
 
     unitScale *= zoomRatio;
@@ -161,14 +174,14 @@ void PlotScene::updateGridUnits(double newViewScale){
     if(zoomRatio >= scaler.nextUp()){ //zoomed in
         nextScale = scaler.scaleUp();
         relativeGridScale *= nextScale;
-        absoluteZoomScale *= nextScale;
+        absoluteGridScale *= nextScale;
         unitScale = 1;
     }
 
     else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
         nextScale = scaler.scaleDown();
         relativeGridScale /= nextScale;
-        absoluteZoomScale /= nextScale;
+        absoluteGridScale /= nextScale;
         unitScale = 1;
     }
 

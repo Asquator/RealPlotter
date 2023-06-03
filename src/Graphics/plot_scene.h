@@ -24,6 +24,13 @@ public:
 
     double getUnitScale() const;
 
+    enum class Axis{
+        X, Y
+    };
+
+    double mapToRealCoords(double sceneCoordinate, Axis);
+    double mapToSceneCoords(double realCoordinate, Axis);
+
 public slots:
     void updateGridUnits(double newViewScale);
 
@@ -40,7 +47,7 @@ private:
 
     const double TEXT_WIDTH_TO_PLOT_SIZE = 0.015;
 
-    double absoluteZoomScale = 1;
+    double absoluteGridScale = 1;
     double relativeGridScale = 1;
     double unitScale = 1;
 
