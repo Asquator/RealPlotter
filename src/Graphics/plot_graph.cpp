@@ -39,10 +39,15 @@ void PlotGraph::addToPlot(const QModelIndex &index){
 
     auto vals = valuesFuture.get();
 
-    QPainterPath path = buildPath(vals, x1, delta);
-    canvasScene->addPath(path);
+    QPen pen;
 
-    functions.insert(entryPtr, nullptr);
+    pen.setCosmetic(true);
+
+    QPainterPath path = buildPath(vals, x1, delta);
+
+    QGraphicsPathItem *item = canvasScene->addPath(path, pen);
+
+    functions.insert(entryPtr, item);
 }
 
 
@@ -50,7 +55,9 @@ void PlotGraph::removeFromPlot(const QModelIndex &index){
     FunctionListModel *listModel = static_cast<FunctionListModel *>(sender());
 
     auto entryPtr = listModel->data(index, Qt::DisplayRole).value<QSharedPointer<FunctionEntry>>();
+    canvasScene->removeItem(functions[entryPtr]);
 
+    delete functions[entryPtr];
     functions.remove(entryPtr);
 }
 
