@@ -13,17 +13,19 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        src/main.cpp
-        src/plotwidget.cpp
+		src/app.cpp
 
-        src/function_entry.cpp
-        src/function_table.cpp
-        src/line_editor.cpp
+		src/Widgets/line_editor.h
+		src/Widgets/plotwidget.h
 
-        src/line_editor.h
-        src/plotwidget.h
-        src/function_entry.h
-		src/function_table.h
+		src/Widgets/plotwidget.cpp
+		src/Widgets/line_editor.cpp
+
+		src/Structures/function_entry.h
+		src/Structures/function_table.h
+
+		src/Structures/function_entry.cpp
+		src/Structures/function_table.cpp
 
 		src/ModelView/function_list_model.h
 		src/ModelView/function_list_view.h
@@ -76,7 +78,9 @@ endif()
 target_include_directories(RealPlotter PRIVATE ${CMAKE_SOURCE_DIR}/src
                                         PRIVATE ${CMAKE_SOURCE_DIR}/src/Parser
 										PRIVATE ${CMAKE_SOURCE_DIR}/src/Graphics
-										PRIVATE ${CMAKE_SOURCE_DIR}/src/ModelView)
+										PRIVATE ${CMAKE_SOURCE_DIR}/src/ModelView
+										PRIVATE ${CMAKE_SOURCE_DIR}/src/Structures
+										PRIVATE ${CMAKE_SOURCE_DIR}/src/Widgets)
 
 target_link_libraries(RealPlotter PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
                                     PRIVATE RealFunctionLib)
