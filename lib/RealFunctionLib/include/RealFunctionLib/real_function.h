@@ -28,12 +28,6 @@ class RealFunction{
 
 		friend RealFunction createConstant(real_type x);
 
-        friend RealFunction createPolynomial(const std::vector<real_type> &coefficients_vector);
-
-        friend RealFunction createPolynomial(std::vector<real_type>&& coefficients_vector);
-
-        friend RealFunction createPolynomial(std::initializer_list<real_type> il);
-
 		friend std::ostream &operator<<(std::ostream &, const RealFunction &);
 		
         RealFunction() = default;
@@ -102,9 +96,6 @@ RealFunction operator-(const RealFunction&);
 
 RealFunction getSpecial(Specials);
 RealFunction createConstant(real_type);
-RealFunction createPolynomial(const std::vector<real_type> &);
-RealFunction createPolynomial(std::vector<real_type> &&);
-RealFunction createPolynomial(std::initializer_list<real_type>);
 
 /**
  * @brief evaluate evaluates a given function on a |x1, x2| interval

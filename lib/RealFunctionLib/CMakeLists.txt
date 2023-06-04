@@ -9,7 +9,6 @@ src/product_function.cpp
 src/difference_function.cpp
 src/fraction_function.cpp
 src/negated_function.cpp
-src/polynomial.cpp
 src/special_function.cpp
 src/composite_function.cpp
 src/power_function.cpp
@@ -24,7 +23,6 @@ include/RealFunctionLib/product_function.h
 include/RealFunctionLib/difference_function.h
 include/RealFunctionLib/fraction_function.h
 include/RealFunctionLib/negated_function.h
-include/RealFunctionLib/polynomial.h
 include/RealFunctionLib/special_function.h
 include/RealFunctionLib/composite_function.h
 include/RealFunctionLib/power_function.h

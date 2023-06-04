@@ -9,7 +9,6 @@
 #include "composite_function.h"
 #include "constant_function.h"
 #include "negated_function.h"
-#include "polynomial.h"
 #include "power_function.h"
 
 #include "real_function.h"
@@ -91,21 +90,6 @@ RealFunction createConstant(real_type x){
 
 RealFunction getSpecial(Specials type){
     return RealFunction{SpecialFunction::getSpecial(type)};
-}
-
-RealFunction createPolynomial(const vector<real_type> &coefficients_vector){
-    //passing the given vector to the polynomial constructor
-    return RealFunction{shared_ptr<RealFunctionBase>{new Polynomial{coefficients_vector}}};
-}
-
-RealFunction createPolynomial(vector<real_type>&& coefficients_vector){
-    //moving the given vector to the polynomial constructor
-    return RealFunction{shared_ptr<RealFunctionBase>{new Polynomial{std::move(coefficients_vector)}}};
-}
-
-RealFunction createPolynomial(std::initializer_list<real_type> il){
-       //passing the given initializer list to the polynomial constructor 
-       return RealFunction{shared_ptr<RealFunctionBase>{new Polynomial{il}}};
 }
 
 
