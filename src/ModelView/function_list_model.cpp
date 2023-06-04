@@ -4,7 +4,9 @@
 #include "parse_worker.h"
 #include "function_entry.h"
 
+#ifndef NDEBUG
 #include <iostream>
+#endif
 
 using namespace RealFunctionLib;
 
@@ -111,8 +113,11 @@ void FunctionListModel::tryParse(const QModelIndex &index){
         //if the index is valid, insert the parsed function entry to the list at the given index
         if(persIndex.isValid()){
             *funcList[persIndex.row()] = entry; //save in the model
-            std::cout << "parsed" << std::endl;
-            std::cout << funcList[persIndex.row()]->getFunction() << std::endl;
+
+            #ifndef NDEBUG //log info to console on debug
+                std::cout << "parsed" << std::endl;
+                std::cout << funcList[persIndex.row()]->getFunction() << std::endl;
+            #endif
 
             handleParsed(index);    //further processing if needed
 
@@ -134,9 +139,12 @@ void FunctionListModel::handleParsed(const QModelIndex &index){
     QSharedPointer<FunctionEntry> ptr = funcList[index.row()];
 
     //if the function is named, then save it to the table of named functions
-    std::cout << "checking named" << std::endl;
     if(ptr->isNamed()){
+
+        #ifndef NDEBUG
         std::cout << "named: " << ptr->getName() << std::endl;
+        #endif
+
         namedFunctions.replace(ptr->getName(), ptr);
 
     }

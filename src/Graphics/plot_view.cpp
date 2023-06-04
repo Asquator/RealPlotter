@@ -1,5 +1,9 @@
 #include <float.h>
+
+#ifndef NDEBUG
 #include <iostream>
+#endif
+
 #include <QRectF>
 #include <QPolygonF>
 #include <algorithm>
@@ -101,6 +105,8 @@ void PlotView::wheelEvent(QWheelEvent *event){
 
     static_cast<PlotScene *>(scene())->updateGridUnits(zoomScale);
 
-    std::cout << zoomScale << std::endl;
-    std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << width << " " << height << std::endl;
+    #ifndef NDEBUG
+    std::cout << "view zoom scale: " << zoomScale << std::endl;
+    std::cout << "visible rectangle: " << visibleRect().x() <<" " << visibleRect().y() << " " << width << " " << height << std::endl;
+    #endif
 }
