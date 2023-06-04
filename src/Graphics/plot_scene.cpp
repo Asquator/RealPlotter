@@ -1,5 +1,9 @@
 #include <float.h>
+
+#ifndef NDEBUG
 #include <iostream>
+#endif
+
 #include <cmath>
 #include <array>
 #include <vector>
@@ -169,10 +173,13 @@ void PlotScene::updateGridUnits(double newViewScale){
     bool updated = false;
     double nextScale;
 
+    #ifndef NDEBUG
     std::cout << "UNIT: " << UNIT_SCALE_SIDE << " RELATIVE SCALE: " << relativeGridScale <<
                                                 " ABSOLUTE SCALE :" << absoluteGridScale <<
                                                 " UNIT SCALE: " << unitScale <<
                                                 std::endl;
+    #endif
+
     double zoomRatio = newViewScale / relativeGridScale;
 
     unitScale *= zoomRatio;

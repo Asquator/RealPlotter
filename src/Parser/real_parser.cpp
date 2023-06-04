@@ -336,18 +336,6 @@ int RealParser::readCountDiffTags(){
     return cnt;
 }
 
-/*
-bool RealParser::readStripXArgument(){
-    auto itSaved = it;
-    if(it + 2 < inputString.cend() &&
-        *it++ == '(' && *it++ == 'x' && *it++ == ')')
-        return true;
-
-    it = itSaved;
-    return false;
-}
-*/
-
 RealToken RealParser::nextToken(){
     RealToken token;
 
