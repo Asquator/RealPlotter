@@ -14,7 +14,7 @@ class PlotScene : public QGraphicsScene
 public:
     explicit PlotScene(QWidget *parent = nullptr);
 
-   // void addAxes();
+    //void addAxes();
 
     //double getGridScale(){return relativeGridScale;}
 
@@ -23,13 +23,14 @@ public:
 
     static const double UNIT_SCALE_SIDE;
 
-    double getUnitScale() const;
-
     double mapXToRealCoords(double sceneCoordinate);
     double mapYToRealCoords(double sceneCoordinate);
 
     double mapXToSceneCoords(double realCoordinate);
     double mapYToSceneCoords(double realCoordinate);
+
+    QPointF mapToSceneCoords(const QPointF &point);
+    QPointF mapToRealCoords(const QPointF &point);
 
     double getUnitScaledSide();
 
@@ -40,10 +41,11 @@ public:
 
 public slots:
     void updateGridUnits(double newViewScale);
-    void requestNewCenter(QPointF newCenter);
+    void requestNewCenter(const QPointF &center);
+    void requestNewCenter(double x, double y);
 
 signals:
-    void scaleChanged(double factor);
+    void scaleAboutToChange(double factor);
 
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect) override;

@@ -13,16 +13,18 @@ using std::future;
 PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotScene),
     canvasView(new PlotView(this)) {
 
-    canvasScene->requestNewCenter(QPointF{100,100});
+    canvasScene->requestNewCenter(0,0);
     canvasView->setScene(canvasScene);
+
     canvasView->centerOn(canvasScene->sceneRect().center());
 
-
-    connect(canvasView, SIGNAL(viewChanged()), this, SLOT(refreshAll()));
     connect(canvasView, SIGNAL(zoomed(double)), canvasScene, SLOT(updateGridUnits(double)));
+    connect(canvasScene, &PlotScene::scaleAboutToChange, canvasView, &PlotView::unitRescale);
 
     connect(canvasView->horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotGraph::horizontalMoved);
     connect(canvasView->verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotGraph::verticalMoved);
+
+    connect(canvasView, SIGNAL(viewChanged()), this, SLOT(refreshAll()));
 
     //Layout
     QHBoxLayout *layout = new QHBoxLayout;
@@ -68,20 +70,18 @@ void PlotGraph::removeFromPlot(QSharedPointer<FunctionEntry> entryPtr){
     functions.remove(entryPtr);
 }
 
+#include <iostream>
 
 void PlotGraph::horizontalMoved(int newVal)
 {
     QScrollBar *bar = static_cast<QScrollBar *>(sender());
-    /*
-    double oldX;
-
+/*
     if(newVal == bar->minimum()){
-        QRectF vis = canvasView->visibleRect();
+        QPointF visibleCenter = canvasView->visibleCenter();
+        std::cout << "center " << visibleCenter.x() << "   " << visibleCenter.y() << std::endl;
+        QPointF realCenter = canvasScene->mapToRealCoords(visibleCenter);
 
-        double x_shift = canvasScene->sceneRect().width();
-
-        canvasScene->requestExpandLeft(x_shift);
-        //canvasView->translate(x_shift, 0);
+        canvasScene->requestNewCenter(realCenter);
     }
 */
 }

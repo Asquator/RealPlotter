@@ -73,7 +73,7 @@ QPointF PlotScene::getRealCenter() const
 
 double PlotScene::mapXToRealCoords(double crd)
 {
-    return crd / UNIT_SCALE_SIDE + realCenter.x() / gridScale;
+    return crd / UNIT_SCALE_SIDE / gridScale + realCenter.x();
 }
 
 
@@ -92,6 +92,18 @@ double PlotScene::mapXToSceneCoords(double crd)
 double PlotScene::mapYToSceneCoords(double crd)
 {
     return (realCenter.y() - crd) * UNIT_SCALE_SIDE * gridScale;
+}
+
+
+QPointF PlotScene::mapToSceneCoords(const QPointF &point)
+{
+    return QPointF(mapXToSceneCoords(point.x()), mapYToSceneCoords(point.y()));
+}
+
+
+QPointF PlotScene::mapToRealCoords(const QPointF &point)
+{
+    return QPointF(mapXToRealCoords(point.x()), mapYToRealCoords(point.y()));
 }
 
 
@@ -182,7 +194,6 @@ void PlotScene::drawAxes(QPainter *painter)
     coord = mapXToSceneCoords(0);
     painter->drawLine(coord, -SCENE_SIDE, coord, SCENE_SIDE);
     //std::cout << "y "<< coord << std::endl;
-
 }
 
 
@@ -228,35 +239,37 @@ void PlotScene::updateGridUnits(double newViewScale){
     double nextScale;
     double zoomRatio = newViewScale / gridScale;
 
-#ifndef NDEBUG
-    std::cout << "NEW VIEW SCALE: " << newViewScale
-              << " GRID SCALE :" << gridScale <<
-            " RELATIVE SCALE: " << relativeScale <<  std::endl;
-#endif
-
+    #ifndef NDEBUG
+        std::cout << "NEW VIEW SCALE: " << newViewScale
+                  << " GRID SCALE :" << gridScale <<
+                " RELATIVE SCALE: " << relativeScale <<  std::endl;
+    #endif
 
     if(zoomRatio >= scaler.nextUp()){ //zoomed in
         nextScale = scaler.scaleUp();
+        emit scaleAboutToChange(nextScale);
         gridScale *= nextScale;
         relativeScale = 1;
-        emit scaleChanged(nextScale);
+
     }
 
     else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
         nextScale = scaler.scaleDown();
+        emit scaleAboutToChange(1 / nextScale);
         gridScale /= nextScale;
         relativeScale = 1;
-        emit scaleChanged(1/nextScale);
+
     }
 }
 
-
-void PlotScene::requestNewCenter(QPointF newCenter)
+void PlotScene::requestNewCenter(const QPointF &center)
 {
-    /*
-    y_axis->moveBy(UNIT_SCALE_SIDE * (realCenter.x() - newCenter.x()), 0);
-    x_axis->moveBy(0, UNIT_SCALE_SIDE * -(realCenter.y() - newCenter.y()));
-*/
-    realCenter = newCenter;
+    realCenter = center;
+}
+
+
+void PlotScene::requestNewCenter(double x, double y)
+{
+    realCenter = QPointF{x,y};
 }
 

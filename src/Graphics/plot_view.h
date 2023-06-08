@@ -15,7 +15,8 @@ public:
     PlotView(QWidget *parent);
     void setScene(PlotScene *scene);
 
-    QRectF visibleRect();
+    QRectF visibleRect() const;
+    QPointF visibleCenter() const;
 
 public slots:
     void unitRescale(double factor);
