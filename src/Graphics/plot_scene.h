@@ -36,15 +36,14 @@ public:
     static constexpr double REQUESTED_SHIFT_COEF = 0.5;
 
     QPointF getRealCenter() const;
+    QPointF getOriginInSceneCoords();
 
 public slots:
     void updateGridUnits(double newViewScale);
-    void scaleCoordinatesFactor(double scale);
-
     void requestNewCenter(QPointF newCenter);
 
 signals:
-    void basicUnitUpdated();
+    void scaleChanged(double factor);
 
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect) override;
@@ -58,14 +57,9 @@ private:
     const int LINE_WIDTH = 3;
 
     double gridScale = 1;
-    double absoluteScale = 1;
     double relativeScale = 1;
 
     QPointF realCenter;
-
-    double unitScale = 1; //to be removed
-
-    double coordinateMappingCoef = UNIT_SCALE_SIDE;
 
     void drawAxes(QPainter *painter);
     void drawGrid(QPainter *painter, const QRectF &rect);

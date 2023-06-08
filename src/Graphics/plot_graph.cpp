@@ -13,7 +13,7 @@ using std::future;
 PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotScene),
     canvasView(new PlotView(this)) {
 
-    canvasScene->requestNewCenter(QPointF{15,15});
+    canvasScene->requestNewCenter(QPointF{100,100});
     canvasView->setScene(canvasScene);
     canvasView->centerOn(canvasScene->sceneRect().center());
 
@@ -32,6 +32,8 @@ PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotSce
 
     setLayout(layout);
 }
+
+
 
 void PlotGraph::addRefreshPlot(QSharedPointer<FunctionEntry> entryPtr){
     RealFunction func = entryPtr->getFunction();

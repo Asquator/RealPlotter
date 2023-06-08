@@ -17,6 +17,9 @@ public:
 
     QRectF visibleRect();
 
+public slots:
+    void unitRescale(double factor);
+
 signals:
     void viewChanged();
     void zoomed(double factor);
@@ -26,7 +29,6 @@ private:
 
     const double SCROLL_FACTOR = 0.001;
 
-    void unitRescale();
 
     void drawBackground(QPainter *painter, const QRectF &rect) override;
 

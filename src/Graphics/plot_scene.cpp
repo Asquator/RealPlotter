@@ -73,25 +73,25 @@ QPointF PlotScene::getRealCenter() const
 
 double PlotScene::mapXToRealCoords(double crd)
 {
-    return crd / coordinateMappingCoef + realCenter.x() / gridScale;
+    return crd / UNIT_SCALE_SIDE + realCenter.x() / gridScale;
 }
 
 
 double PlotScene::mapYToRealCoords(double crd)
 {
-    return realCenter.y() - crd / coordinateMappingCoef / gridScale;
+    return realCenter.y() - crd / UNIT_SCALE_SIDE / gridScale;
 }
 
 
 double PlotScene::mapXToSceneCoords(double crd)
 {
-    return (crd - realCenter.x()) * coordinateMappingCoef * gridScale;
+    return (crd - realCenter.x()) * UNIT_SCALE_SIDE * gridScale;
 }
 
 
 double PlotScene::mapYToSceneCoords(double crd)
 {
-    return (realCenter.y() - crd) * coordinateMappingCoef * gridScale;
+    return (realCenter.y() - crd) * UNIT_SCALE_SIDE * gridScale;
 }
 
 
@@ -99,6 +99,12 @@ double PlotScene::mapYToSceneCoords(double crd)
 double PlotScene::getUnitScaledSide()
 {
     return UNIT_SCALE_SIDE * N_DEFAULT_GRID_LINES;
+}
+
+
+QPointF PlotScene::getOriginInSceneCoords()
+{
+    return QPointF{mapXToSceneCoords(0), mapYToSceneCoords(0)};
 }
 
 
@@ -124,8 +130,7 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     //std::cout << "grid scale " << gridScale << std::endl;
     #endif
 
-    QPointF origin {mapXToSceneCoords(0), mapYToSceneCoords(0)};
-    std::cout<<origin.x() <<"  " << origin.y() << std::endl;
+    QPointF origin = getOriginInSceneCoords();
 
     //horizontal
     startUnitCoord = round((top - origin.y()) / coordGap);
@@ -136,13 +141,13 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
         painter->drawLine(left - EXTRA_RENDER_OFFSET, coordLevel,
                           right + EXTRA_RENDER_OFFSET, coordLevel);
 
-        /*if(sceneCenter.x() > right)
+        if(sceneCenter.x() > right)
             labelFlags |= Qt::AlignRight;
 
         else
-            labelFlags |= Qt::AlignLeft;*/
+            labelFlags |= Qt::AlignLeft;
 
-        painter->drawText(/*min(max(*/origin.x()/*, left), right - textWidth)*/, coordLevel, textWidth, textHeight,
+        painter->drawText(min(max(origin.x(), left), right - textWidth), coordLevel, textWidth, textHeight,
                           labelFlags, QString::number(-gridLabel));
     }
 
@@ -156,7 +161,7 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
         painter->drawLine(coordLevel, top - EXTRA_RENDER_OFFSET,
                           coordLevel, bottom + EXTRA_RENDER_OFFSET);
 
-        painter->drawText(coordLevel, /*min(max(*/origin.y()/*, top), bottom - textHeight)*/, textWidth, textHeight,
+        painter->drawText(coordLevel, min(max(origin.y(), top), bottom - textHeight), textWidth, textHeight,
                           Qt::AlignLeft, QString::number(gridLabel));
     }
 }
@@ -234,22 +239,17 @@ void PlotScene::updateGridUnits(double newViewScale){
         nextScale = scaler.scaleUp();
         gridScale *= nextScale;
         relativeScale = 1;
-        emit basicUnitUpdated();
+        emit scaleChanged(nextScale);
     }
 
     else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
         nextScale = scaler.scaleDown();
         gridScale /= nextScale;
         relativeScale = 1;
-        emit basicUnitUpdated();
+        emit scaleChanged(1/nextScale);
     }
 }
 
-
-void PlotScene::scaleCoordinatesFactor(double scale)
-{
-    coordinateMappingCoef *= scale;
-}
 
 void PlotScene::requestNewCenter(QPointF newCenter)
 {

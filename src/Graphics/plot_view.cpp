@@ -34,12 +34,9 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
 
-    connect(scene, &PlotScene::basicUnitUpdated, this, [this](){
-        unitRescale();
-    });
+    connect(scene, &PlotScene::scaleChanged, this, &PlotView::unitRescale);
 
     centerOn(scene->sceneRect().center());
-    unitRescale();
     zoomScale = 1;
 }
 
@@ -52,20 +49,15 @@ QRectF PlotView::visibleRect(){
 using std::abs;
 
 
-void PlotView::unitRescale(){
-    const double allowedScaleError = 0.000001;
-
+void PlotView::unitRescale(double factor){
     QRectF rect = visibleRect();
-
-    double currentSide = std::max(rect.width(), rect.height());
-    double desiredSide = static_cast<PlotScene *>(scene())->getUnitScaledSide();
+    PlotScene *pc = static_cast<PlotScene *>(scene());
 
     auto anchor = transformationAnchor();
     setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
 
-    while(abs(currentSide - desiredSide) / desiredSide > allowedScaleError){
-        double factor = currentSide / desiredSide;
         QPointF center = rect.center();
+        factor = 1 / factor;
 
         scale(factor, factor);
         QRectF newrect = visibleRect();
@@ -78,11 +70,6 @@ void PlotView::unitRescale(){
 
         rect = visibleRect();
 
-
-        currentSide = std::max(rect.width(), rect.height());
-        desiredSide = static_cast<PlotScene *>(scene())->getUnitScaledSide();
-    }
-
     setTransformationAnchor(anchor);
 }
 
@@ -92,8 +79,15 @@ void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
 
     static bool firstTime = true;
 
-    if(firstTime)
-        unitRescale();
+    if(firstTime){
+        PlotScene *pc = static_cast<PlotScene *>(scene());
+        QRectF rect = visibleRect();
+
+        double currentSide = std::max(rect.width(), rect.height());
+        double desiredSide = pc->getUnitScaledSide();
+
+        unitRescale(desiredSide/currentSide);
+    }
 
     firstTime = false;
 }
@@ -102,11 +96,10 @@ void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
 void PlotView::wheelEvent(QWheelEvent *event){
     int angle = event->angleDelta().y();
     double scaleFactor = 1 + angle * SCROLL_FACTOR;
+
+    emit zoomed(zoomScale);
     scale(scaleFactor, scaleFactor);
     zoomScale *= scaleFactor;
-
-    emit viewChanged();
-    emit zoomed(zoomScale);
 
     #ifndef NDEBUG
     double width = visibleRect().width(), height = visibleRect().height();
