@@ -27,6 +27,9 @@ public slots:
     void addRefreshPlot(QSharedPointer<FunctionEntry>);
     void removeFromPlot(QSharedPointer<FunctionEntry>);
 
+    void horizontalMoved(int newVal);
+    void verticalMoved(int newVal);
+
     void refreshAll();
 
 private:

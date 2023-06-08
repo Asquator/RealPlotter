@@ -38,11 +38,9 @@ void PlotView::setScene(PlotScene *scene){
         unitRescale();
     });
 
-    connect(this, SIGNAL(viewScaled(double)), scene, SLOT(scaleCoordinatesFactor(double)));
-
     centerOn(scene->sceneRect().center());
-
     unitRescale();
+    zoomScale = 1;
 }
 
 
@@ -62,22 +60,30 @@ void PlotView::unitRescale(){
     double currentSide = std::max(rect.width(), rect.height());
     double desiredSide = static_cast<PlotScene *>(scene())->getUnitScaledSide();
 
+    auto anchor = transformationAnchor();
+    setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
+
     while(abs(currentSide - desiredSide) / desiredSide > allowedScaleError){
         double factor = currentSide / desiredSide;
-        QPointF newCenter = rect.center() / factor;
+        QPointF center = rect.center();
 
         scale(factor, factor);
+        QRectF newrect = visibleRect();
+
+        QPointF newCenter = center / factor;
+
         centerOn(newCenter);
 
         //emit viewScaled(factor);
 
         rect = visibleRect();
 
+
         currentSide = std::max(rect.width(), rect.height());
         desiredSide = static_cast<PlotScene *>(scene())->getUnitScaledSide();
     }
 
-    zoomScale = 1;
+    setTransformationAnchor(anchor);
 }
 
 
@@ -98,15 +104,14 @@ void PlotView::wheelEvent(QWheelEvent *event){
     double scaleFactor = 1 + angle * SCROLL_FACTOR;
     scale(scaleFactor, scaleFactor);
     zoomScale *= scaleFactor;
+
     emit viewChanged();
-
-    double width = visibleRect().width();
-    double height = visibleRect().height();
-
-    static_cast<PlotScene *>(scene())->updateGridUnits(zoomScale);
+    emit zoomed(zoomScale);
 
     #ifndef NDEBUG
+    double width = visibleRect().width(), height = visibleRect().height();
     std::cout << "view zoom scale: " << zoomScale << std::endl;
     std::cout << "visible rectangle: " << visibleRect().x() <<" " << visibleRect().y() << " " << width << " " << height << std::endl;
-    #endif
+    std::cout << ((PlotScene *)(scene()))->mapXToSceneCoords(0) << " " << ((PlotScene *)(scene()))->mapYToSceneCoords(0) << std::endl;
+#endif
 }

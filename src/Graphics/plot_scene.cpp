@@ -22,20 +22,26 @@ PlotScene::PlotScene(QWidget *parent)
 
     setSceneRect(-SCENE_SIDE/2, -SCENE_SIDE/2, SCENE_SIDE, SCENE_SIDE);
 
-    addAxes();
+
+    //addAxes();
 }
+
 
 const double PlotScene::UNIT_SCALE_SIDE = sqrt(SCENE_SIDE);
 const double PlotScene::MAX_RECOMMENDED_ZOOM = 0.01 * UNIT_SCALE_SIDE;
 
+/*
 void PlotScene::addAxes(){
     QPen axesPen(Qt::black);
     axesPen.setWidth(3);
 
-    QPointF center = sceneRect().center();
+    QPointF sceneCenter = sceneRect().center();
 
-    QGraphicsLineItem *x_axis = new QGraphicsLineItem(-width()/2, center.y(), width()/2, center.y());
-    QGraphicsLineItem *y_axis = new QGraphicsLineItem(center.x(), height()/2, center.x(), -height()/2);
+    x_axis = new QGraphicsLineItem(-width()/2 + realCenter.x(), sceneCenter.y() + realCenter.y(),
+                                   width()/2 + realCenter.x(), sceneCenter.y() + realCenter.y());
+
+    y_axis = new QGraphicsLineItem(sceneCenter.x() + realCenter.x(), height()/2 + realCenter.y(),
+                                   sceneCenter.x() + realCenter.x(), -height()/2 + realCenter.y());
 
     x_axis->setPen(axesPen);
     y_axis->setPen(axesPen);
@@ -46,34 +52,53 @@ void PlotScene::addAxes(){
     addItem(x_axis);
     addItem(y_axis);
 }
+*/
 
 void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
     //fill white background
     setBackgroundBrush(Qt::white);
     QGraphicsScene::drawBackground(painter, rect);
 
+    drawAxes(painter);
+
     //draw dynamic grid dependent on the rect position
     drawGrid(painter, rect);
 }
 
-double PlotScene::getUnitScale() const
+QPointF PlotScene::getRealCenter() const
 {
-    return unitScale;
+    return realCenter;
 }
 
-double PlotScene::mapToRealCoords(double crd, Axis ax)
+
+double PlotScene::mapXToRealCoords(double crd)
 {
-    return (ax == Axis::Y ? -1 : 1) * crd / coordinateMappingCoef;
+    return crd / coordinateMappingCoef + realCenter.x() / gridScale;
 }
 
-double PlotScene::mapToSceneCoords(double crd, Axis ax)
+
+double PlotScene::mapYToRealCoords(double crd)
 {
-    return (ax == Axis::Y ? -1 : 1) * crd * coordinateMappingCoef;
+    return realCenter.y() - crd / coordinateMappingCoef / gridScale;
 }
+
+
+double PlotScene::mapXToSceneCoords(double crd)
+{
+    return (crd - realCenter.x()) * coordinateMappingCoef * gridScale;
+}
+
+
+double PlotScene::mapYToSceneCoords(double crd)
+{
+    return (realCenter.y() - crd) * coordinateMappingCoef * gridScale;
+}
+
+
 
 double PlotScene::getUnitScaledSide()
 {
-    return UNIT_SCALE_SIDE * N_DEFAULT_GRID_LINES * getUnitScale();
+    return UNIT_SCALE_SIDE * N_DEFAULT_GRID_LINES;
 }
 
 
@@ -86,48 +111,72 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     painter->setPen(pen);
     painter->setFont(QFont("Arial", TEXT_WIDTH_TO_PLOT_SIZE * rect.width(), 500));
 
-    const double coordGap = UNIT_SCALE_SIDE / relativeGridScale;
-    const double realGap = 1 / absoluteGridScale;
+    const double coordGap = UNIT_SCALE_SIDE;
+    const double realGap = 1 / gridScale;
     const double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
     const double textWidth = TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 8,
-                textHeight = TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2;
+        textHeight = TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2;
 
     double coordLevel, gridLabel, startUnitCoord;
     int labelFlags = 0;
 
+    #ifndef NDEBUG
+    //std::cout << "grid scale " << gridScale << std::endl;
+    #endif
+
+    QPointF origin {mapXToSceneCoords(0), mapYToSceneCoords(0)};
+    std::cout<<origin.x() <<"  " << origin.y() << std::endl;
+
     //horizontal
-
-    startUnitCoord = round(top / coordGap);
+    startUnitCoord = round((top - origin.y()) / coordGap);
     //iterate from top to bottom and draw lines
-    for (coordLevel = coordGap * startUnitCoord, gridLabel = realGap * startUnitCoord;
-        coordLevel < bottom + coordGap;
-        coordLevel += coordGap, gridLabel += realGap) {
+    for (coordLevel = coordGap * startUnitCoord + origin.y(), gridLabel = realGap * startUnitCoord;
+         coordLevel < bottom + coordGap;
+         coordLevel += coordGap, gridLabel += realGap) {
         painter->drawLine(left - EXTRA_RENDER_OFFSET, coordLevel,
-                        right + EXTRA_RENDER_OFFSET, coordLevel);
+                          right + EXTRA_RENDER_OFFSET, coordLevel);
 
-        if(sceneCenter.x() > right)
-                labelFlags |= Qt::AlignRight;
+        /*if(sceneCenter.x() > right)
+            labelFlags |= Qt::AlignRight;
 
         else
-                labelFlags |= Qt::AlignLeft;
+            labelFlags |= Qt::AlignLeft;*/
 
-        painter->drawText(min(max(sceneCenter.x(), left), right - textWidth), coordLevel, textWidth, textHeight,
+        painter->drawText(/*min(max(*/origin.x()/*, left), right - textWidth)*/, coordLevel, textWidth, textHeight,
                           labelFlags, QString::number(-gridLabel));
     }
 
     //vertical
 
-    startUnitCoord = round(left / coordGap);
+    startUnitCoord = round((left - origin.x())/ coordGap);
     //iterate from left to right and draw lines
-    for (coordLevel = coordGap * startUnitCoord, gridLabel = realGap * startUnitCoord;
-        coordLevel <= right + coordGap;
-        coordLevel += coordGap, gridLabel += realGap) {
+    for (coordLevel = coordGap * startUnitCoord + origin.x(), gridLabel = realGap * startUnitCoord;
+         coordLevel <= right + coordGap;
+         coordLevel += coordGap, gridLabel += realGap) {
         painter->drawLine(coordLevel, top - EXTRA_RENDER_OFFSET,
-                        coordLevel, bottom + EXTRA_RENDER_OFFSET);
+                          coordLevel, bottom + EXTRA_RENDER_OFFSET);
 
-        painter->drawText(coordLevel, min(max(sceneCenter.y(), top), bottom - textHeight), textWidth, textHeight,
+        painter->drawText(coordLevel, /*min(max(*/origin.y()/*, top), bottom - textHeight)*/, textWidth, textHeight,
                           Qt::AlignLeft, QString::number(gridLabel));
     }
+}
+
+void PlotScene::drawAxes(QPainter *painter)
+{
+    QPen pen = QPen(Qt::black);
+    double w = 3 * LINE_WIDTH;
+    pen.setWidth(w);
+
+    painter->setPen(pen);
+
+    //x axis
+    double coord = mapYToSceneCoords(0);
+    painter->drawLine(-SCENE_SIDE, coord, SCENE_SIDE, coord);
+    //std::cout <<"x "<< coord << std::endl;
+    //y axis
+    coord = mapXToSceneCoords(0);
+    painter->drawLine(coord, -SCENE_SIDE, coord, SCENE_SIDE);
+    //std::cout << "y "<< coord << std::endl;
 
 }
 
@@ -169,61 +218,45 @@ private:
 
 
 void PlotScene::updateGridUnits(double newViewScale){
-    static CircularScaler<3> scaler({2,2.5,2}, 0);
+    static CircularScaler<3> scaler({2, 2.5, 2}, 0);
     bool updated = false;
     double nextScale;
+    double zoomRatio = newViewScale / gridScale;
 
-    #ifndef NDEBUG
-    std::cout << "UNIT: " << UNIT_SCALE_SIDE << " RELATIVE SCALE: " << relativeGridScale <<
-                                                " ABSOLUTE SCALE :" << absoluteGridScale <<
-                                                " UNIT SCALE: " << unitScale <<
-                                                std::endl;
-    #endif
+#ifndef NDEBUG
+    std::cout << "NEW VIEW SCALE: " << newViewScale
+              << " GRID SCALE :" << gridScale <<
+            " RELATIVE SCALE: " << relativeScale <<  std::endl;
+#endif
 
-    double zoomRatio = newViewScale / relativeGridScale;
-
-    unitScale *= zoomRatio;
 
     if(zoomRatio >= scaler.nextUp()){ //zoomed in
         nextScale = scaler.scaleUp();
-        relativeGridScale *= nextScale;
-        absoluteGridScale *= nextScale;
-        unitGridScale *= nextScale;
-        unitScale = 1;
+        gridScale *= nextScale;
+        relativeScale = 1;
+        emit basicUnitUpdated();
     }
 
     else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
         nextScale = scaler.scaleDown();
-        relativeGridScale /= nextScale;
-        absoluteGridScale /= nextScale;
-        unitGridScale /= nextScale;
-        unitScale = 1;
-    }
-
-    if(relativeGridScale >= MAX_RECOMMENDED_ZOOM){ //zoomed in exceeding scene size
-        relativeGridScale = unitScale;
-        double s = unitGridScale;
-        coordinateMappingCoef *= s;
-        emit basicUnitUpdated();
-        unitGridScale = 1;
-    }
-
-    else if(relativeGridScale <= 1 / MAX_RECOMMENDED_ZOOM){ //zoomed out exceeding scene size
-        relativeGridScale = unitScale;
-        double s = absoluteGridScale;
-        coordinateMappingCoef *= unitGridScale;
-        unitGridScale = 1;
+        gridScale /= nextScale;
+        relativeScale = 1;
         emit basicUnitUpdated();
     }
-
 }
+
 
 void PlotScene::scaleCoordinatesFactor(double scale)
 {
     coordinateMappingCoef *= scale;
 }
 
-
-using std::vector; using std::future;
-
+void PlotScene::requestNewCenter(QPointF newCenter)
+{
+    /*
+    y_axis->moveBy(UNIT_SCALE_SIDE * (realCenter.x() - newCenter.x()), 0);
+    x_axis->moveBy(0, UNIT_SCALE_SIDE * -(realCenter.y() - newCenter.y()));
+*/
+    realCenter = newCenter;
+}
 
