@@ -22,15 +22,20 @@ PlotScene::PlotScene(QWidget *parent)
 
     setSceneRect(-SCENE_SIDE/2, -SCENE_SIDE/2, SCENE_SIDE, SCENE_SIDE);
 
+    addAxes();
+}
 
-    //addAxes();
+PlotScene::~PlotScene()
+{
+    delete x_axis;
+    delete y_axis;
 }
 
 
 const double PlotScene::UNIT_SCALE_SIDE = sqrt(SCENE_SIDE);
 const double PlotScene::MAX_RECOMMENDED_ZOOM = 0.01 * UNIT_SCALE_SIDE;
 
-/*
+
 void PlotScene::addAxes(){
     QPen axesPen(Qt::black);
     axesPen.setWidth(3);
@@ -52,17 +57,22 @@ void PlotScene::addAxes(){
     addItem(x_axis);
     addItem(y_axis);
 }
-*/
+
 
 void PlotScene::drawBackground(QPainter *painter, const QRectF &rect){
     //fill white background
     setBackgroundBrush(Qt::white);
     QGraphicsScene::drawBackground(painter, rect);
 
-    drawAxes(painter);
-
     //draw dynamic grid dependent on the rect position
     drawGrid(painter, rect);
+}
+
+void PlotScene::centerAxes()
+{
+    QPointF origin{getOriginInSceneCoords()};
+    x_axis->setPos(origin.x(), origin.y());
+    y_axis->setPos(origin.x(), origin.y());
 }
 
 QPointF PlotScene::getRealCenter() const
@@ -178,6 +188,7 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     }
 }
 
+/*
 void PlotScene::drawAxes(QPainter *painter)
 {
     QPen pen = QPen(Qt::black);
@@ -195,6 +206,7 @@ void PlotScene::drawAxes(QPainter *painter)
     painter->drawLine(coord, -SCENE_SIDE, coord, SCENE_SIDE);
     //std::cout << "y "<< coord << std::endl;
 }
+*/
 
 
 template <int N> class CircularScaler {
@@ -250,7 +262,7 @@ void PlotScene::updateGridUnits(double newViewScale){
         emit scaleAboutToChange(nextScale);
         gridScale *= nextScale;
         relativeScale = 1;
-
+        centerAxes();
     }
 
     else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
@@ -258,7 +270,7 @@ void PlotScene::updateGridUnits(double newViewScale){
         emit scaleAboutToChange(1 / nextScale);
         gridScale /= nextScale;
         relativeScale = 1;
-
+        centerAxes();
     }
 }
 
@@ -270,6 +282,6 @@ void PlotScene::requestNewCenter(const QPointF &center)
 
 void PlotScene::requestNewCenter(double x, double y)
 {
-    realCenter = QPointF{x,y};
+    requestNewCenter(QPointF{x,y});
 }
 

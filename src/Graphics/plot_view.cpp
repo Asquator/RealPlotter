@@ -33,6 +33,14 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
+    scene->requestNewCenter(0,0);
+    centerOn(scene->sceneRect().center());
+
+    connect(this, SIGNAL(zoomed(double)), scene, SLOT(updateGridUnits(double)));
+    connect(scene, &PlotScene::scaleAboutToChange, this, &PlotView::unitRescale);
+
+    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::horizontalMoved);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::verticalMoved);
 
     zoomScale = 1;
 }
@@ -50,22 +58,28 @@ QPointF PlotView::visibleCenter() const{
 
 using std::abs;
 
+void PlotView::horizontalMoved(int newVal)
+{
+    QScrollBar *bar = static_cast<QScrollBar *>(sender());
+
+}
+
+
+void PlotView::verticalMoved(int newVal)
+{
+    QScrollBar *bar = static_cast<QScrollBar *>(sender());
+}
+
+
 void PlotView::unitRescale(double factor){
-    QRectF rect = visibleRect();
     PlotScene *pc = static_cast<PlotScene *>(scene());
 
     auto anchor = transformationAnchor();
     setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
 
-    QPointF vcen = pc->mapToRealCoords(visibleCenter());
-        factor = 1 / factor;
-        pc->requestNewCenter(vcen);
-
-        QPointF ds = pc->mapToRealCoords(pc->sceneRect().center());
-        centerOn(pc->sceneRect().center());
-        scale(factor, factor);
-
-        rect = visibleRect();
+    moveCenterHere();
+    factor = 1 / factor;
+    scale(factor, factor);
 
     setTransformationAnchor(anchor);
 }
@@ -87,6 +101,13 @@ void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
     }
 
     firstTime = false;
+}
+
+void PlotView::moveCenterHere()
+{
+    PlotScene *pc = static_cast<PlotScene *>(scene());
+    pc->requestNewCenter(pc->mapToRealCoords(visibleCenter()));
+    centerOn(pc->sceneRect().center());
 }
 
 
