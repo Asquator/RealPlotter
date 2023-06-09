@@ -17,10 +17,10 @@ public:
 
     void createAxes();
 
-    static constexpr double SCENE_SIDE = 1000000;
+    static constexpr double SCENE_SIDE = 100000;
     static constexpr int N_DEFAULT_GRID_LINES = 8;
 
-    static const double UNIT_SCALE_SIDE;
+    static const double UNIT_COORD_LENGTH;
 
     double mapXToRealCoords(double sceneCoordinate);
     double mapYToRealCoords(double sceneCoordinate);

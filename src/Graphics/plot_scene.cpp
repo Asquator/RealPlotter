@@ -5,7 +5,6 @@
 #endif
 
 #include <cmath>
-#include <array>
 #include <vector>
 #include <future>
 
@@ -15,6 +14,9 @@
 
 #include "plot_scene.h"
 #include "function_list_model.h"
+
+#include "Tools/circular_scaler.h"
+#include "Tools/plot_calculations.h"
 
 
 PlotScene::PlotScene(QWidget *parent)
@@ -32,8 +34,8 @@ PlotScene::~PlotScene()
 }
 
 
-const double PlotScene::UNIT_SCALE_SIDE = sqrt(SCENE_SIDE);
-const double PlotScene::MAX_RECOMMENDED_ZOOM = 0.01 * UNIT_SCALE_SIDE;
+const double PlotScene::UNIT_COORD_LENGTH = sqrt(SCENE_SIDE);
+const double PlotScene::MAX_RECOMMENDED_ZOOM = 0.01 * UNIT_COORD_LENGTH;
 
 
 void PlotScene::createAxes(){
@@ -83,25 +85,25 @@ QPointF PlotScene::getRealCenter() const
 
 double PlotScene::mapXToRealCoords(double crd)
 {
-    return crd / UNIT_SCALE_SIDE / gridScale + realCenter.x();
+    return crd / UNIT_COORD_LENGTH / gridScale + realCenter.x();
 }
 
 
 double PlotScene::mapYToRealCoords(double crd)
 {
-    return realCenter.y() - crd / UNIT_SCALE_SIDE / gridScale;
+    return realCenter.y() - crd / UNIT_COORD_LENGTH / gridScale;
 }
 
 
 double PlotScene::mapXToSceneCoords(double crd)
 {
-    return (crd - realCenter.x()) * UNIT_SCALE_SIDE * gridScale;
+    return (crd - realCenter.x()) * UNIT_COORD_LENGTH * gridScale;
 }
 
 
 double PlotScene::mapYToSceneCoords(double crd)
 {
-    return (realCenter.y() - crd) * UNIT_SCALE_SIDE * gridScale;
+    return (realCenter.y() - crd) * UNIT_COORD_LENGTH * gridScale;
 }
 
 
@@ -120,7 +122,7 @@ QPointF PlotScene::mapToRealCoords(const QPointF &point)
 
 double PlotScene::getUnitScaledSide()
 {
-    return UNIT_SCALE_SIDE * N_DEFAULT_GRID_LINES;
+    return UNIT_COORD_LENGTH * N_DEFAULT_GRID_LINES;
 }
 
 
@@ -133,96 +135,57 @@ QPointF PlotScene::getOriginInSceneCoords()
 using std::fabs; using std::fmod; using std::min; using std::max;
 
 void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
-    const QPointF sceneCenter = sceneRect().center();
     QPen pen = QPen(Qt::black);
     pen.setCosmetic(true);
     painter->setPen(pen);
     painter->setFont(QFont("Arial", TEXT_WIDTH_TO_PLOT_SIZE * rect.width(), 500));
 
-    const double coordGap = UNIT_SCALE_SIDE;
     const double realGap = 1 / gridScale;
     const double top = rect.top(), bottom = rect.bottom(), left = rect.left(), right = rect.right();
     const double textWidth = TEXT_WIDTH_TO_PLOT_SIZE * rect.width() * 8,
         textHeight = TEXT_WIDTH_TO_PLOT_SIZE * rect.height() * 2;
 
+    const double epsilon = Real_Math::real_epsilon * realGap;
     double coordLevel, gridLabel, startUnitCoord;
     int labelFlags = 0;
 
     #ifndef NDEBUG
-    //std::cout << "grid scale " << gridScale << std::endl;
+    std::cout << "grid scale " << gridScale << std::endl;
+    std::cout << "epsilon to round labels " << epsilon << std::endl;
     #endif
 
-    QPointF origin = getOriginInSceneCoords();
+    const QPointF origin = getOriginInSceneCoords();
 
     //horizontal
-    startUnitCoord = round((top - origin.y()) / coordGap);
+
+    startUnitCoord = round((top - origin.y()) / UNIT_COORD_LENGTH);
     //iterate from top to bottom and draw lines
-    for (coordLevel = coordGap * startUnitCoord + origin.y(), gridLabel = realGap * startUnitCoord;
-         coordLevel < bottom + coordGap;
-         coordLevel += coordGap, gridLabel += realGap) {
+    for (coordLevel = UNIT_COORD_LENGTH * startUnitCoord + origin.y(), gridLabel = realGap * startUnitCoord;
+         coordLevel < bottom + UNIT_COORD_LENGTH;
+         coordLevel += UNIT_COORD_LENGTH, gridLabel += realGap) {
         painter->drawLine(left - EXTRA_RENDER_OFFSET, coordLevel,
                           right + EXTRA_RENDER_OFFSET, coordLevel);
 
-        if(sceneCenter.x() > right)
-            labelFlags |= Qt::AlignRight;
+        labelFlags |= origin.x() > right ? Qt::AlignRight : Qt::AlignLeft;
 
-        else
-            labelFlags |= Qt::AlignLeft;
-
-        painter->drawText(min(max(origin.x(), left), right - textWidth), coordLevel, textWidth, textHeight,
-                          labelFlags, QString::number(-gridLabel));
+        painter->drawText(min(max(origin.x(), left), right - (origin.x() > right ? textWidth : 0)),
+                          coordLevel, textWidth, textHeight, labelFlags, QString::number(-round_zero(gridLabel, epsilon)));
     }
 
     //vertical
 
-    startUnitCoord = round((left - origin.x())/ coordGap);
+    startUnitCoord = round((left - origin.x()) / UNIT_COORD_LENGTH);
     //iterate from left to right and draw lines
-    for (coordLevel = coordGap * startUnitCoord + origin.x(), gridLabel = realGap * startUnitCoord;
-         coordLevel <= right + coordGap;
-         coordLevel += coordGap, gridLabel += realGap) {
+    for (coordLevel = UNIT_COORD_LENGTH * startUnitCoord + origin.x(), gridLabel = realGap * startUnitCoord;
+         coordLevel <= right + UNIT_COORD_LENGTH;
+         coordLevel += UNIT_COORD_LENGTH, gridLabel += realGap) {
         painter->drawLine(coordLevel, top - EXTRA_RENDER_OFFSET,
                           coordLevel, bottom + EXTRA_RENDER_OFFSET);
 
         painter->drawText(coordLevel, min(max(origin.y(), top), bottom - textHeight), textWidth, textHeight,
-                          Qt::AlignLeft, QString::number(gridLabel));
+                          Qt::AlignLeft, QString::number(round_zero(gridLabel, epsilon)));
     }
 }
-
-
-template <int N> class CircularScaler {
-public:
-    CircularScaler(std::array<double, N> arr, int startUpscalePos):
-        factors(arr), pos{startUpscalePos} {}
-
-    double nextUp(){
-        return factors[pos];
-    }
-
-    double nextDown(){
-        return pos == 0 ? factors[factors.size() - 1] : factors[pos];
-    }
-
-    double scaleUp(){
-        //take this element as a scale factor
-        double ret = factors[pos++];
-        if(pos == factors.size())
-            pos = 0;
-
-        return ret;
-    }
-
-    double scaleDown(){
-        //take previous value as a scale factor
-        if(--pos < 0)
-            pos = factors.size()-1;
-
-        return factors[pos];
-    }
-
-private:
-    int pos;
-    std::array<double, N> factors;
-};
 
 
 void PlotScene::updateGridUnits(double newViewScale){
