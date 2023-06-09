@@ -14,7 +14,7 @@ PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotSce
     canvasView(new PlotView(this)) {
     canvasView->setScene(canvasScene);
 
-    connect(canvasView, SIGNAL(zoomed(double)), this, SLOT(refreshAll()));
+    connect(canvasView, SIGNAL(frameChanged()), this, SLOT(refreshAll()));
 
     //Layout
     QHBoxLayout *layout = new QHBoxLayout;

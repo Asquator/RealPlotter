@@ -37,7 +37,6 @@ void PlotView::setScene(PlotScene *scene){
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
 
     connect(this, SIGNAL(zoomed(double)), scene, SLOT(updateGridUnits(double)));
-    connect(this, SIGNAL(zoomed(double)), this, SIGNAL(frameChanged()));
     connect(scene, &PlotScene::scaleAboutToChange, this, &PlotView::unitRescale);
 }
 
@@ -87,6 +86,7 @@ void PlotView::unitRescale(double factor){
     scale(factor, factor);
 
     setTransformationAnchor(anchor);
+    emit frameChanged();
 }
 
 

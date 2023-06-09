@@ -30,7 +30,7 @@ public slots:
     void refreshAll();
 
 private:
-    static constexpr double DELTA_RATIO = 10000;
+    static constexpr double DELTA_RATIO = 100000;
 
     QMap<QSharedPointer<FunctionEntry>, QGraphicsPathItem *> functions;
 

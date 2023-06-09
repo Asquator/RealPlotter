@@ -149,11 +149,6 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     double coordLevel, gridLabel, startUnitCoord;
     int labelFlags = 0;
 
-    #ifndef NDEBUG
-    std::cout << "grid scale " << gridScale << std::endl;
-    std::cout << "epsilon to round labels " << epsilon << std::endl;
-    #endif
-
     const QPointF origin = getOriginInSceneCoords();
 
     //horizontal
