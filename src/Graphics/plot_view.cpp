@@ -37,6 +37,7 @@ void PlotView::setScene(PlotScene *scene){
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
 
     connect(this, SIGNAL(zoomed(double)), scene, SLOT(updateGridUnits(double)));
+    connect(this, SIGNAL(zoomed(double)), this, SIGNAL(frameChanged()));
     connect(scene, &PlotScene::scaleAboutToChange, this, &PlotView::unitRescale);
 }
 
@@ -65,8 +66,10 @@ void PlotView::scrollbarMoved(int newVal)
     constexpr double static_scroll_range = 0.9;
 
     QScrollBar *bar = static_cast<QScrollBar *>(sender());
-    if(newVal >= static_scroll_range * bar->maximum() || newVal <= (1- static_scroll_range) * bar->minimum())
+    if(newVal >= static_scroll_range * bar->maximum() || newVal <= (1- static_scroll_range) * bar->minimum()){
         moveCenterHere();
+        emit frameChanged();
+    }
 
     #ifndef NDEBUG
     std::cout << "horizontal: " << horizontalScrollBar()->value() << " vertical: " << verticalScrollBar()->value() << std::endl;

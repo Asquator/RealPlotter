@@ -23,7 +23,16 @@ public slots:
     void scrollbarMoved(int newVal);
 
 signals:
+    /**
+     * @brief zoomed view was zoomed
+     * @param factor relative zoom factor to unit scaled view
+     */
     void zoomed(double factor);
+
+    /**
+     * @brief frameChanged shown scene frame was changed
+     */
+    void frameChanged();
 
 private:
     double zoomScale = 1;
