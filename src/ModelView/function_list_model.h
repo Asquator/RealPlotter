@@ -10,8 +10,6 @@
 #include "function_entry.h"
 #include "function_table.h"
 
-Q_DECLARE_METATYPE(QSharedPointer<FunctionEntry>)
-
 class FunctionListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -28,11 +26,11 @@ public:
 
 signals:
 	void lastRemoved();
-    void parsedFunction(QModelIndex);
+    void parsedFunction(QSharedPointer<FunctionEntry>);
+    void invalidated(QSharedPointer<FunctionEntry>);
 
 
 public slots:
-
     /**
      * @brief addEmptyLine adds empty line at the end of the list
      */

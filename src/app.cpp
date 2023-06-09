@@ -1,11 +1,5 @@
-#include "plotwidget.h"
-#include "Parser/real_parser.h"
-
 #include <QApplication>
-
-#include <iostream>
-
-#include "line_editor.h"
+#include "plotwidget.h"
 
 int main(int argc, char *argv[])
 {

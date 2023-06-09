@@ -4,10 +4,10 @@
 using RealFunctionLib::RealFunction;
 
 FunctionEntry::FunctionEntry(const QString &str, const RealFunction &function):
-    inputString(str), function(function), name{'\0'} {}
+    inputString{str}, function{function}, name{'\0'}, graphicPath{nullptr}{}
 
 FunctionEntry::FunctionEntry(const QString &str, const RealFunction &function, char name):
-    inputString(str), function(function), name(name){}
+    inputString{str}, function{function}, name{name}, graphicPath{nullptr}{}
 
 
 

@@ -1,9 +1,15 @@
 #include <float.h>
+
+#ifndef NDEBUG
 #include <iostream>
+#endif
+
 #include <QRectF>
 #include <QPolygonF>
 #include <algorithm>
 #include <cmath>
+
+#include <QScrollBar>
 
 #include "plot_view.h"
 
@@ -19,61 +25,65 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
     setDragMode(QGraphicsView::ScrollHandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
 }
 
 
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
-
-    connect(scene, &PlotScene::basicUnitUpdated, this, [this](){
-        unitRescale();
-    });
-
+    scene->requestNewCenter(0,0);
     centerOn(scene->sceneRect().center());
 
-    unitRescale();
+    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
+
+    connect(this, SIGNAL(zoomed(double)), scene, SLOT(updateGridUnits(double)));
+    connect(scene, &PlotScene::scaleAboutToChange, this, &PlotView::unitRescale);
 }
 
 
-QRectF PlotView::visibleRect(){
+PlotScene *PlotView::scene()
+{
+    return static_cast<PlotScene *>(QGraphicsView::scene());
+}
+
+
+QRectF PlotView::visibleRect() const{
     return mapToScene(rect()).boundingRect();
 }
 
 
+QPointF PlotView::visibleCenter() const{
+    return visibleRect().center();
+}
+
 
 using std::abs;
 
+void PlotView::scrollbarMoved(int newVal)
+{
+    //scrollbar coefficient range in which center remains static
+    constexpr double static_scroll_range = 0.9;
 
-void PlotView::unitRescale(){
-    const double allowedScaleError = 0.0001;
+    QScrollBar *bar = static_cast<QScrollBar *>(sender());
+    if(newVal >= static_scroll_range * bar->maximum() || newVal <= (1- static_scroll_range) * bar->minimum())
+        moveCenterHere();
 
-    QRectF rect = visibleRect();
+    #ifndef NDEBUG
+    std::cout << "horizontal: " << horizontalScrollBar()->value() << " vertical: " << verticalScrollBar()->value() << std::endl;
+    #endif
+}
 
-    double currentSide = std::max(rect.width(), rect.height());
-    double desiredSide = PlotScene::UNIT_SCALE_SIDE *
-                         PlotScene::N_DEFAULT_GRID_LINES * 0.5 *
-                         static_cast<PlotScene *>(scene())->getUnitScale();
 
-    while(abs(currentSide - desiredSide) / desiredSide > allowedScaleError){
-        double factor = currentSide / desiredSide;
-        QPointF c = rect.center();
-        QPointF newCenter = rect.center() / factor;
+void PlotView::unitRescale(double factor){
+    auto anchor = transformationAnchor();
+    setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
 
-        scale(factor, factor);
-        centerOn(newCenter);
+    moveCenterHere();
 
-        rect = visibleRect();
+    factor = 1 / factor;
+    scale(factor, factor);
 
-        currentSide = std::max(rect.width(), rect.height());
-        desiredSide = PlotScene::UNIT_SCALE_SIDE *
-                             PlotScene::N_DEFAULT_GRID_LINES * 0.5 *
-                             static_cast<PlotScene *>(scene())->getUnitScale();
-
-    }
-
-    zoomScale = 1;
-    rect = visibleRect();
+    setTransformationAnchor(anchor);
 }
 
 
@@ -82,24 +92,38 @@ void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
 
     static bool firstTime = true;
 
-    if(firstTime)
-        unitRescale();
+    if(firstTime){
+        QRectF rect = visibleRect();
+
+        double currentSide = std::max(rect.width(), rect.height());
+        double desiredSide = scene()->getUnitScaledSide();
+
+        unitRescale(desiredSide/currentSide);
+    }
 
     firstTime = false;
+}
+
+void PlotView::moveCenterHere()
+{
+    PlotScene *pc = scene();
+    pc->requestNewCenter(pc->mapToRealCoords(visibleCenter()));
+    centerOn(pc->sceneRect().center());
 }
 
 
 void PlotView::wheelEvent(QWheelEvent *event){
     int angle = event->angleDelta().y();
     double scaleFactor = 1 + angle * SCROLL_FACTOR;
+
     scale(scaleFactor, scaleFactor);
     zoomScale *= scaleFactor;
 
-    double width = visibleRect().width();
-    double height = visibleRect().height();
+    emit zoomed(zoomScale);
 
-    static_cast<PlotScene *>(scene())->updateGridUnits(zoomScale);
-
-    std::cout << zoomScale << std::endl;
-    std::cout << visibleRect().x() <<" " << visibleRect().y() << " " << width << " " << height << std::endl;
+    #ifndef NDEBUG
+    double width = visibleRect().width(), height = visibleRect().height();
+    std::cout << "view zoom scale: " << zoomScale << std::endl;
+    std::cout << "visible rectangle: " << visibleRect().x() <<" " << visibleRect().y() << " " << width << " " << height << std::endl;
+    #endif
 }

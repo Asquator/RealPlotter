@@ -13,7 +13,7 @@ LineEditor::LineEditor(QWidget *parent)
 	deleteButton->setFocusPolicy(Qt::NoFocus);
 
 	//view and layout
-	deleteButton->setText("X");
+    deleteButton->setText("Delete");
     inputField->setFont(QFont("Monospace", 18));
 
     setFixedHeight(50);

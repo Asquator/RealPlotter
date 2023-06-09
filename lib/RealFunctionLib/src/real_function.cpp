@@ -9,7 +9,6 @@
 #include "composite_function.h"
 #include "constant_function.h"
 #include "negated_function.h"
-#include "polynomial.h"
 #include "power_function.h"
 
 #include "real_function.h"
@@ -91,21 +90,6 @@ RealFunction createConstant(real_type x){
 
 RealFunction getSpecial(Specials type){
     return RealFunction{SpecialFunction::getSpecial(type)};
-}
-
-RealFunction createPolynomial(const vector<real_type> &coefficients_vector){
-    //passing the given vector to the polynomial constructor
-    return RealFunction{shared_ptr<RealFunctionBase>{new Polynomial{coefficients_vector}}};
-}
-
-RealFunction createPolynomial(vector<real_type>&& coefficients_vector){
-    //moving the given vector to the polynomial constructor
-    return RealFunction{shared_ptr<RealFunctionBase>{new Polynomial{std::move(coefficients_vector)}}};
-}
-
-RealFunction createPolynomial(std::initializer_list<real_type> il){
-       //passing the given initializer list to the polynomial constructor 
-       return RealFunction{shared_ptr<RealFunctionBase>{new Polynomial{il}}};
 }
 
 
@@ -195,5 +179,18 @@ RealFunction operator/(const RealFunction &left, const RealFunction &right){
     return tmp /= right;
 }
 
+vector<real_type> evaluate(RealFunction function, real_type x1, real_type x2,
+                           real_type delta){
+    vector<real_type> ret;
+
+    ret.reserve(round((x2 - x1) / delta) + 1);
+
+    for(real_type p = x1; p <= x2; p += delta)
+        ret.push_back(function.isDefined(p) ? function(p) : Real_Math::real_NaN);
+
+    return ret;
+}
+
 
 }
+

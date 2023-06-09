@@ -1,6 +1,7 @@
+#include <RealFunctionLib/real_function.h>
+
 #include "parse_worker.h"
 #include "real_parser.h"
-#include <RealFunctionLib/real_function.h>
 
 using RealFunctionLib::RealFunction;
 

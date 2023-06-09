@@ -15,19 +15,25 @@ public:
     PlotView(QWidget *parent);
     void setScene(PlotScene *scene);
 
-    QRectF visibleRect();
+    QRectF visibleRect() const;
+    QPointF visibleCenter() const;
+
+public slots:
+    void unitRescale(double factor);
+    void scrollbarMoved(int newVal);
 
 signals:
-    void zoomScaleChanged(double);
+    void zoomed(double factor);
 
 private:
     double zoomScale = 1;
+    const double SCROLL_FACTOR = 0.0005;
 
-    const double SCROLL_FACTOR = 0.001;
-
-    void unitRescale();
+    PlotScene *scene();
 
     void drawBackground(QPainter *painter, const QRectF &rect) override;
+    void moveCenterHere();
+
 
 protected:
     void wheelEvent(QWheelEvent *event);

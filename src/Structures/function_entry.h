@@ -3,10 +3,11 @@
 
 #include <QString>
 #include <QMetaType>
+#include <QGraphicsPathItem>
 
 #include<RealFunctionLib/real_function.h>
 
-class FunctionEntry{
+class FunctionEntry {
 
 public:
     FunctionEntry(){qRegisterMetaType<FunctionEntry>();}
@@ -49,10 +50,13 @@ public:
         return function;
     }
 
+
 private:
     char name = '\0';
     QString inputString;
     RealFunctionLib::RealFunction function;
+
+    QGraphicsPathItem *graphicPath;
 };
 
 
