@@ -18,7 +18,7 @@ public:
     void createAxes();
 
     static constexpr double SCENE_SIDE = 100000;
-    static constexpr int N_DEFAULT_GRID_LINES = 8;
+    static constexpr int N_DEFAULT_GRID_LINES = 10;
 
     static const double UNIT_COORD_LENGTH;
 
@@ -45,7 +45,8 @@ public slots:
     void requestNewCenter(double x, double y);
 
 signals:
-    void scaleAboutToChange(double factor);
+    void scaleAboutToChange(double nextFactor);
+    void scaleChanged(double appliedFactor);
 
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect) override;
@@ -60,7 +61,7 @@ private:
 
     double gridScale = 1;
 
-    QPointF realCenter;
+    QPointF realCenter {0,0};
 
     QGraphicsLineItem *x_axis;
     QGraphicsLineItem *y_axis;

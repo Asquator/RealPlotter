@@ -14,7 +14,7 @@ PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotSce
     canvasView(new PlotView(this)) {
     canvasView->setScene(canvasScene);
 
-    connect(canvasView, SIGNAL(zoomed(double)), this, SLOT(refreshAll()));
+    connect(canvasView, SIGNAL(frameChanged()), this, SLOT(refreshAll()));
 
     //Layout
     QHBoxLayout *layout = new QHBoxLayout;
@@ -30,7 +30,7 @@ PlotGraph::PlotGraph(QWidget *parent) : QWidget(parent), canvasScene(new PlotSce
 void PlotGraph::addRefreshPlot(QSharedPointer<FunctionEntry> entryPtr){
     RealFunction func = entryPtr->getFunction();
 
-    QRectF rect = canvasView->visibleRect();
+    QRectF rect = canvasScene->sceneRect();
 
     double x1 = canvasScene->mapXToRealCoords(rect.left());
     double x2 = canvasScene->mapXToRealCoords(rect.right());

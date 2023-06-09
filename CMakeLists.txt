@@ -43,6 +43,11 @@ set(PROJECT_SOURCES
         src/Graphics/plot_scene.cpp
         src/Graphics/plot_view.cpp
 
+		src/Graphics/Tools/plot_calculations.h
+		src/Graphics/Tools/plot_calculations.cpp
+
+		src/Graphics/Tools/circular_scaler.h
+
         src/Parser/real_parser.h
         src/Parser/parse_worker.h
 
@@ -100,6 +105,10 @@ install(TARGETS RealPlotter
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(RealPlotter)
 endif()
+
+qt_add_resources(RealPlotter "images"
+	PREFIX "/"
+	FILES resources/delete.png)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/RealFunctionLib)
 
