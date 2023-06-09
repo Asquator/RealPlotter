@@ -15,9 +15,9 @@ public:
     explicit PlotScene(QWidget *parent = nullptr);
     ~PlotScene();
 
-    void addAxes();
+    void createAxes();
 
-    static constexpr double SCENE_SIDE = 100000;
+    static constexpr double SCENE_SIDE = 1000000;
     static constexpr int N_DEFAULT_GRID_LINES = 8;
 
     static const double UNIT_SCALE_SIDE;
@@ -37,6 +37,7 @@ public:
 
     QPointF getRealCenter() const;
     QPointF getOriginInSceneCoords();
+
 
 public slots:
     void updateGridUnits(double newViewScale);
@@ -58,7 +59,6 @@ private:
     const int LINE_WIDTH = 3;
 
     double gridScale = 1;
-    double relativeScale = 1;
 
     QPointF realCenter;
 
@@ -66,6 +66,7 @@ private:
     QGraphicsLineItem *y_axis;
 
     void centerAxes();
+
     void drawGrid(QPainter *painter, const QRectF &rect);
 
 };

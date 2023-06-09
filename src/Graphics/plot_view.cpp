@@ -25,9 +25,6 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
     setDragMode(QGraphicsView::ScrollHandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::viewChanged);
-    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::viewChanged);
 }
 
 
@@ -36,13 +33,17 @@ void PlotView::setScene(PlotScene *scene){
     scene->requestNewCenter(0,0);
     centerOn(scene->sceneRect().center());
 
+    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
+
     connect(this, SIGNAL(zoomed(double)), scene, SLOT(updateGridUnits(double)));
     connect(scene, &PlotScene::scaleAboutToChange, this, &PlotView::unitRescale);
+}
 
-    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::horizontalMoved);
-    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::verticalMoved);
 
-    zoomScale = 1;
+PlotScene *PlotView::scene()
+{
+    return static_cast<PlotScene *>(QGraphicsView::scene());
 }
 
 
@@ -58,26 +59,27 @@ QPointF PlotView::visibleCenter() const{
 
 using std::abs;
 
-void PlotView::horizontalMoved(int newVal)
+void PlotView::scrollbarMoved(int newVal)
 {
+    //scrollbar coefficient range in which center remains static
+    constexpr double static_scroll_range = 0.9;
+
     QScrollBar *bar = static_cast<QScrollBar *>(sender());
+    if(newVal >= static_scroll_range * bar->maximum() || newVal <= (1- static_scroll_range) * bar->minimum())
+        moveCenterHere();
 
-}
-
-
-void PlotView::verticalMoved(int newVal)
-{
-    QScrollBar *bar = static_cast<QScrollBar *>(sender());
+    #ifndef NDEBUG
+    std::cout << "horizontal: " << horizontalScrollBar()->value() << " vertical: " << verticalScrollBar()->value() << std::endl;
+    #endif
 }
 
 
 void PlotView::unitRescale(double factor){
-    PlotScene *pc = static_cast<PlotScene *>(scene());
-
     auto anchor = transformationAnchor();
     setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
 
     moveCenterHere();
+
     factor = 1 / factor;
     scale(factor, factor);
 
@@ -91,11 +93,10 @@ void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
     static bool firstTime = true;
 
     if(firstTime){
-        PlotScene *pc = static_cast<PlotScene *>(scene());
         QRectF rect = visibleRect();
 
         double currentSide = std::max(rect.width(), rect.height());
-        double desiredSide = pc->getUnitScaledSide();
+        double desiredSide = scene()->getUnitScaledSide();
 
         unitRescale(desiredSide/currentSide);
     }
@@ -105,7 +106,7 @@ void PlotView::drawBackground(QPainter *painter, const QRectF &rect){
 
 void PlotView::moveCenterHere()
 {
-    PlotScene *pc = static_cast<PlotScene *>(scene());
+    PlotScene *pc = scene();
     pc->requestNewCenter(pc->mapToRealCoords(visibleCenter()));
     centerOn(pc->sceneRect().center());
 }

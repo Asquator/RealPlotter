@@ -22,7 +22,7 @@ PlotScene::PlotScene(QWidget *parent)
 
     setSceneRect(-SCENE_SIDE/2, -SCENE_SIDE/2, SCENE_SIDE, SCENE_SIDE);
 
-    addAxes();
+    createAxes();
 }
 
 PlotScene::~PlotScene()
@@ -36,17 +36,17 @@ const double PlotScene::UNIT_SCALE_SIDE = sqrt(SCENE_SIDE);
 const double PlotScene::MAX_RECOMMENDED_ZOOM = 0.01 * UNIT_SCALE_SIDE;
 
 
-void PlotScene::addAxes(){
+void PlotScene::createAxes(){
     QPen axesPen(Qt::black);
     axesPen.setWidth(3);
 
     QPointF sceneCenter = sceneRect().center();
 
-    x_axis = new QGraphicsLineItem(-width()/2 + realCenter.x(), sceneCenter.y() + realCenter.y(),
-                                   width()/2 + realCenter.x(), sceneCenter.y() + realCenter.y());
+    x_axis = new QGraphicsLineItem(INT_MIN/2 + realCenter.x(), sceneCenter.y() + realCenter.y(),
+                                   INT_MAX/2 + realCenter.x(), sceneCenter.y() + realCenter.y());
 
-    y_axis = new QGraphicsLineItem(sceneCenter.x() + realCenter.x(), height()/2 + realCenter.y(),
-                                   sceneCenter.x() + realCenter.x(), -height()/2 + realCenter.y());
+    y_axis = new QGraphicsLineItem(sceneCenter.x() + realCenter.x(), INT_MIN/2 + realCenter.y(),
+                                   sceneCenter.x() + realCenter.x(), INT_MAX/2 + realCenter.y());
 
     x_axis->setPen(axesPen);
     y_axis->setPen(axesPen);
@@ -188,26 +188,6 @@ void PlotScene::drawGrid(QPainter *painter, const QRectF &rect){
     }
 }
 
-/*
-void PlotScene::drawAxes(QPainter *painter)
-{
-    QPen pen = QPen(Qt::black);
-    double w = 3 * LINE_WIDTH;
-    pen.setWidth(w);
-
-    painter->setPen(pen);
-
-    //x axis
-    double coord = mapYToSceneCoords(0);
-    painter->drawLine(-SCENE_SIDE, coord, SCENE_SIDE, coord);
-    //std::cout <<"x "<< coord << std::endl;
-    //y axis
-    coord = mapXToSceneCoords(0);
-    painter->drawLine(coord, -SCENE_SIDE, coord, SCENE_SIDE);
-    //std::cout << "y "<< coord << std::endl;
-}
-*/
-
 
 template <int N> class CircularScaler {
 public:
@@ -253,15 +233,13 @@ void PlotScene::updateGridUnits(double newViewScale){
 
     #ifndef NDEBUG
         std::cout << "NEW VIEW SCALE: " << newViewScale
-                  << " GRID SCALE :" << gridScale <<
-                " RELATIVE SCALE: " << relativeScale <<  std::endl;
+                  << " GRID SCALE :" << gridScale <<  std::endl;
     #endif
 
     if(zoomRatio >= scaler.nextUp()){ //zoomed in
         nextScale = scaler.scaleUp();
         emit scaleAboutToChange(nextScale);
         gridScale *= nextScale;
-        relativeScale = 1;
         centerAxes();
     }
 
@@ -269,7 +247,6 @@ void PlotScene::updateGridUnits(double newViewScale){
         nextScale = scaler.scaleDown();
         emit scaleAboutToChange(1 / nextScale);
         gridScale /= nextScale;
-        relativeScale = 1;
         centerAxes();
     }
 }
@@ -277,6 +254,7 @@ void PlotScene::updateGridUnits(double newViewScale){
 void PlotScene::requestNewCenter(const QPointF &center)
 {
     realCenter = center;
+    centerAxes();
 }
 
 

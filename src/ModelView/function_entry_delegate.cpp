@@ -8,7 +8,6 @@ FunctionEntryDelegate::FunctionEntryDelegate(QObject *parent):
     QStyledItemDelegate(parent){}
 
 
-
 QWidget *FunctionEntryDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                                 const QModelIndex &index) const {
 	LineEditor *editor = new LineEditor(parent);
