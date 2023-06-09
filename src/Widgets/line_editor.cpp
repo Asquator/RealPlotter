@@ -1,5 +1,7 @@
-#include "line_editor.h"
+#include <QIcon>
 
+#include "line_editor.h"
+#include <iostream>
 LineEditor::LineEditor(QWidget *parent)
 	: QWidget{parent},
 	layout(new QHBoxLayout(this)),
@@ -13,14 +15,20 @@ LineEditor::LineEditor(QWidget *parent)
 	deleteButton->setFocusPolicy(Qt::NoFocus);
 
 	//view and layout
-    deleteButton->setText("Delete");
+
+    deleteButton->setFixedSize(50, 50);
+    QIcon deleteIcon(DELETE_ICON_LOCATION);
+    std::cout << deleteIcon.isNull() << deleteIcon.isNull() << deleteIcon.isNull() << deleteIcon.isNull() << std::endl;
+    deleteButton->setIcon(QIcon(DELETE_ICON_LOCATION));
+    deleteButton->setIconSize(deleteButton->size());
+
+    deleteButton->setAutoFillBackground(false);
+
     inputField->setFont(QFont("Monospace", 18));
 
     setFixedHeight(50);
 
-	inputField->setFixedHeight(50);
-
-	deleteButton->setFixedSize(50, 50);
+    inputField->setFixedHeight(50);
 
 	layout->addWidget(inputField);
 	layout->addWidget(deleteButton,0, Qt::AlignLeft);

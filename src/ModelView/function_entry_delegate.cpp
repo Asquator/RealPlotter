@@ -7,6 +7,7 @@
 FunctionEntryDelegate::FunctionEntryDelegate(QObject *parent):
     QStyledItemDelegate(parent){}
 
+Q_DECLARE_METATYPE(QSharedPointer<FunctionEntry>)
 
 QWidget *FunctionEntryDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                                 const QModelIndex &index) const {
