@@ -198,14 +198,18 @@ void PlotScene::updateGridUnits(double newViewScale){
         nextScale = scaler.scaleUp();
         emit scaleAboutToChange(nextScale);
         gridScale *= nextScale;
+
         centerAxes();
+        emit scaleChanged(nextScale);
     }
 
     else if(zoomRatio <= 1 / scaler.nextDown()){ //zoomed out
         nextScale = scaler.scaleDown();
         emit scaleAboutToChange(1 / nextScale);
         gridScale /= nextScale;
+
         centerAxes();
+        emit scaleChanged(nextScale);
     }
 }
 

@@ -30,7 +30,7 @@ signals:
     void zoomed(double factor);
 
     /**
-     * @brief frameChanged shown scene frame was changed
+     * @brief frameChanged scene viewed frame was changed
      */
     void frameChanged();
 

@@ -30,14 +30,15 @@ PlotView::PlotView(QWidget *parent) : QGraphicsView(parent)
 
 void PlotView::setScene(PlotScene *scene){
     QGraphicsView::setScene(scene);
-    scene->requestNewCenter(0,0);
     centerOn(scene->sceneRect().center());
 
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlotView::scrollbarMoved);
 
     connect(this, SIGNAL(zoomed(double)), scene, SLOT(updateGridUnits(double)));
+
     connect(scene, &PlotScene::scaleAboutToChange, this, &PlotView::unitRescale);
+    connect(scene, SIGNAL(scaleChanged(double)), this, SIGNAL(frameChanged()));
 }
 
 
@@ -65,6 +66,7 @@ void PlotView::scrollbarMoved(int newVal)
     constexpr double static_scroll_range = 0.9;
 
     QScrollBar *bar = static_cast<QScrollBar *>(sender());
+
     if(newVal >= static_scroll_range * bar->maximum() || newVal <= (1- static_scroll_range) * bar->minimum()){
         moveCenterHere();
         emit frameChanged();
@@ -86,7 +88,6 @@ void PlotView::unitRescale(double factor){
     scale(factor, factor);
 
     setTransformationAnchor(anchor);
-    emit frameChanged();
 }
 
 
