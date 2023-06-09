@@ -65,6 +65,8 @@ signals:
     void textChanged();
 
 private:
+    const QString DELETE_ICON_LOCATION = ":/resources/delete.png";
+
     int lastSavedCursor = 0;
 
 	QHBoxLayout *layout;
